@@ -13,56 +13,46 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TeethKids',
+      title: 'Teeth Kids',
       theme: ThemeData(
-        // Esse é o tema da sua aplicação.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'TeethKids'),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Teeth Kids',),
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MyHomePage(title: 'Teeth Kids'),
+            ],
+          ),
+        ),
+      ),
     );
-  }
-}
+  } //Widget
+} // MyA
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
   Widget build(BuildContext context) {
-    // Esse método é executado novamente toda vez setState é chamado
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Aqui, pegamos o valor do objeto MyHomePage que foi criado pelo método App.build
-        //  e o usamos para definir o título da nossa appbar.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CadastroEmergencia(
-                            title: 'Cadastrar emergência',
-                          )),
-                );
-              },
-              child: Text('Nova emergência'),
-            ),
-          ],
-        ),
-      ),
+    return FilledButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const CadastroEmergencia(
+                    title: 'Cadastrar emergência',
+                  )),
+        );
+      },
+      child: const Text('Solicitar Socorro'),
     );
   }
 }
@@ -84,7 +74,6 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Aqui, pegamos o valor do objeto MyHomePage que foi criado pelo método App.build
         //  e o usamos para definir o título da nossa appbar.
         title: Text(widget.title),
@@ -97,35 +86,55 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
             // imagemSelecionada == null
             //     ? Container()
             //     : Image.file(imagemSelecionada!),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  labelText: 'Digite seu nome',
-                ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Nome Completo:', style: TextStyle(fontSize: 18, color: Colors.deepPurple),),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: 'Digite seu nome',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Telefone:', style: TextStyle(fontSize: 18, color: Colors.deepPurple),),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: 'Digite seu número do celular',
+                    ),
+                  ),
+                ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  labelText: 'Digite seu número do celular',
-                ),
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  FilledButton(
+                    onPressed: () {
+                      pegarImagemCamera();
+                    },
+                    child: const Text('Tirar Foto'),
+                  ),
+                  const Text('Ou', style: TextStyle(fontSize: 14, color: Colors.deepPurple),),
+                  OutlinedButton(
+                    onPressed: () {
+                      pegarImagemGaleria();
+                    },
+                    child: const Text('Foto da galeria'),
+                  ),
+                ],
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                pegarImagemCamera();
-              },
-              child: Text('Tirar Foto'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                pegarImagemGaleria();
-              },
-              child: Text('Foto da galeria'),
             ),
           ],
         ),
@@ -145,7 +154,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
 
   pegarImagemCamera() async {
     final PickedFile? imagemTemporaria =
-    await imagePicker.getImage(source: ImageSource.camera);
+        await imagePicker.getImage(source: ImageSource.camera);
     if (imagemTemporaria != null) {
       setState(() {
         imagemSelecionada = File(imagemTemporaria.path);
