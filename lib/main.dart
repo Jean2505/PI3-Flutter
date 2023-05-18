@@ -8,8 +8,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // Esse widget é a raiz do aplicativo.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,17 +40,41 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const CadastroEmergencia(
-                    title: 'Cadastrar emergência',
-                  )),
-        );
-      },
-      child: const Text('Solicitar Socorro'),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          alignment: Alignment.bottomCenter,
+          margin: const EdgeInsets.only(top: 15, bottom: 24),
+          child: FilledButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CadastroEmergencia(
+                          title: 'Cadastrar emergência',
+                        )
+                ),
+              );
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.sos),
+                Padding(
+                  padding: EdgeInsets.all(13),
+                  child: Text(
+                    'Solicitar Socorro',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                )
+              ],
+            ),
+
+
+          ),
+        ),
+      ],
     );
   }
 }
@@ -74,69 +96,90 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Aqui, pegamos o valor do objeto MyHomePage que foi criado pelo método App.build
-        //  e o usamos para definir o título da nossa appbar.
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Caso futuramente temos que fazer a foto aparecer na tela
-            // imagemSelecionada == null
-            //     ? Container()
-            //     : Image.file(imagemSelecionada!),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              // Caso futuramente temos que fazer a foto aparecer na tela
+              // imagemSelecionada == null
+              //     ? Container()
+              //     : Image.file(imagemSelecionada!),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Preencha com suas informações', style: TextStyle(fontSize: 20, color: Colors.deepPurple, fontStyle: FontStyle.italic),),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Nome Completo:', style: TextStyle(fontSize: 18, color: Colors.black87),),
+                    TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.account_circle_sharp),
+                        labelText: 'Digite seu nome',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Telefone:', style: TextStyle(fontSize: 18, color: Colors.black87),),
+                    TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.phone),
+                        labelText: 'Digite seu número do celular',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Nome Completo:', style: TextStyle(fontSize: 18, color: Colors.deepPurple),),
-                  TextField(
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Digite seu nome',
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    margin: const EdgeInsets.only(top: 5, bottom: 24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        children: [
+                          FilledButton(
+                            onPressed: () {
+                              pegarImagemCamera();
+                            },
+                            child: const Text('Tirar Foto'),
+                          ),
+                          const Text('Ou', style: TextStyle(fontSize: 14, color: Colors.deepPurple),),
+                          OutlinedButton(
+                            onPressed: () {
+                              pegarImagemGaleria();
+                            },
+                            child: const Text('Foto da galeria'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Telefone:', style: TextStyle(fontSize: 18, color: Colors.deepPurple),),
-                  TextField(
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Digite seu número do celular',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  FilledButton(
-                    onPressed: () {
-                      pegarImagemCamera();
-                    },
-                    child: const Text('Tirar Foto'),
-                  ),
-                  const Text('Ou', style: TextStyle(fontSize: 14, color: Colors.deepPurple),),
-                  OutlinedButton(
-                    onPressed: () {
-                      pegarImagemGaleria();
-                    },
-                    child: const Text('Foto da galeria'),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
