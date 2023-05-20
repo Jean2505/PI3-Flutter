@@ -12,7 +12,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -21,10 +21,9 @@ void main() async{
   runApp(const MyApp());
 }
 
-Future<void> userAuth() async{
+Future<void> userAuth() async {
   try {
-     final userCredential =
-        await FirebaseAuth.instance.signInAnonymously();
+    final userCredential = await FirebaseAuth.instance.signInAnonymously();
     print("Signed in with temporary account.");
   } on FirebaseAuthException catch (e) {
     switch (e.code) {
@@ -39,6 +38,7 @@ Future<void> userAuth() async{
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,7 +49,9 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Teeth Kids',),
+          title: const Text(
+            'Teeth Kids',
+          ),
         ),
         body: const Center(
           child: Column(
@@ -84,8 +86,7 @@ class MyHomePage extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (context) => const CadastroEmergencia(
                           title: 'Cadastrar emergência',
-                        )
-                ),
+                        )),
               );
             },
             child: const Row(
@@ -101,8 +102,6 @@ class MyHomePage extends StatelessWidget {
                 )
               ],
             ),
-
-
           ),
         ),
       ],
@@ -120,17 +119,20 @@ class CadastroEmergencia extends StatefulWidget {
 }
 
 class _CadastroEmergenciaState extends State<CadastroEmergencia> {
+  final loading = ValueNotifier<bool>(false);
   ImagePicker imagePicker = ImagePicker();
   XFile? imagem;
   File? imagemSelecionada;
+
   //referencia para a coleção no banco
-  CollectionReference emergencias = FirebaseFirestore.instance.collection('emergencias');
+  CollectionReference emergencias =
+      FirebaseFirestore.instance.collection('emergencias');
+
   //controller pra observar os TextFormField.
   final myNomeController = TextEditingController();
   final myTelefoneController = TextEditingController();
   final _formNomeKey = GlobalKey<FormState>();
   final _formTelefoneKey = GlobalKey<FormState>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -138,73 +140,95 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              // Caso futuramente temos que fazer a foto aparecer na tela
-              // imagemSelecionada == null
-              //     ? Container()
-              //     : Image.file(imagemSelecionada!),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Preencha com suas informações', style: TextStyle(fontSize: 20, color: Colors.deepPurple, fontStyle: FontStyle.italic),),
-                  ],
-                ),
-              ),
-              Padding(
-                key: _formNomeKey,
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Nome Completo:', style: TextStyle(fontSize: 18, color: Colors.black87),),
-                    TextFormField(
-                      controller: myNomeController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe um nome';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.account_circle_sharp),
-                        labelText: 'Digite seu nome',
-                      ),
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  // Caso futuramente temos que fazer a foto aparecer na tela
+                  // imagemSelecionada == null
+                  //     ? Container()
+                  //     : Image.file(imagemSelecionada!),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Preencha com suas informações',
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.deepPurple,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                key: _formTelefoneKey,
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Telefone:', style: TextStyle(fontSize: 18, color: Colors.black87),),
-                    TextFormField(
-                      controller: myTelefoneController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe um nome';
-                         }
-                        return null;
-                       },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone),
-                        labelText: 'Digite seu número do celular',
-                      ),
+                  ),
+                  Padding(
+                    key: _formNomeKey,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nome Completo:',
+                          style: TextStyle(fontSize: 18, color: Colors.black87),
+                        ),
+                        TextFormField(
+                          controller: myNomeController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Informe um nome';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.account_circle_sharp),
+                            labelText: 'Digite seu nome',
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    key: _formTelefoneKey,
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Telefone:',
+                          style: TextStyle(fontSize: 18, color: Colors.black87),
+                        ),
+                        TextFormField(
+                          controller: myTelefoneController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Informe um nome';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.phone),
+                            labelText: 'Digite seu número do celular',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -216,23 +240,62 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                       child: Column(
                         children: [
                           FilledButton(
-                            onPressed: () async{
+                            onPressed: () async {
                               imagem = await pegarImagemCamera();
                             },
                             child: const Text('Tirar Foto'),
                           ),
-                          const Text('Ou', style: TextStyle(fontSize: 14, color: Colors.deepPurple),),
+                          const Text(
+                            'Ou',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.deepPurple),
+                          ),
                           OutlinedButton(
                             onPressed: () async {
                               imagem = await pegarImagemGaleria();
                             },
                             child: const Text('Foto da galeria'),
                           ),
-                          ElevatedButton(
+                          Padding(
+                            padding: const EdgeInsets.only(top: 100),
+                            child: OutlinedButton(
                               onPressed: () {
-                                enviarInfo(myNomeController.text, myTelefoneController.text, imagem);
+                                enviarInfo(myNomeController.text,
+                                    myTelefoneController.text, imagem);
+                                !loading.value ?  loading.value = !loading.value : null;
                               },
-                              child: const Text('Enviar emergência'),
+                              child: AnimatedBuilder(
+                                  animation: loading,
+                                  builder: (context, _) {
+                                    return loading.value
+                                        ? const Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 20),
+                                                child: Text(
+                                                  'Procurando Dentistas',
+                                                  style:
+                                                      TextStyle(fontSize: 16),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : const Padding(
+                                            padding: EdgeInsets.all(5),
+                                            child: Text(
+                                              'Enviar Emergência',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          );
+                                  }),
+                            ),
                           ),
                         ],
                       ),
@@ -242,7 +305,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -254,17 +317,16 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Imagem salva!')),
     );
-    return imagem;
     //pasta de imagem no storage.
-    /*if (imagemTemporaria != null) {
+    if (imagem != null) {
       setState(() {
-        imagemSelecionada = File(imagemTemporaria.path);
+        imagemSelecionada = File(imagem.path);
       });
     }
-     */
+    return imagem;
   }
 
-   Future<XFile?> pegarImagemCamera() async {
+  Future<XFile?> pegarImagemCamera() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -273,56 +335,63 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     return imagem;
   }
 
-  Future<void>enviarInfo(String nome, String telefone, XFile? imagem1) async {
-    final dataHora = "${DateTime.timestamp().day}/${DateTime.timestamp().month}/${DateTime.timestamp().year} ${DateTime.timestamp().hour}:${DateTime.timestamp().minute}";
+  Future<void> enviarInfo(String nome, String telefone, XFile? imagem1) async {
+    final dataHora =
+        "${DateTime.timestamp().day}/${DateTime.timestamp().month}/${DateTime.timestamp().year} ${DateTime.timestamp().hour}:${DateTime.timestamp().minute}";
     final fcm = await FirebaseMessaging.instance.getToken();
     final img1 = "images/img-${DateTime.now().toString()}.jpg";
     try {
-      await FirebaseStorage.instance.ref().child("/$img1").putFile(File(imagem1!.path));
+      await FirebaseStorage.instance
+          .ref()
+          .child("/$img1")
+          .putFile(File(imagem1!.path));
     } on FirebaseException catch (e) {
       throw Exception('Erro: ${e.code}');
     }
 
-    final result = await FirebaseFunctions.instanceFor(region: 'southamerica-east1').httpsCallable("addEmergencia").call({
-      'nome': nome,
-      'tel': telefone,
-      'uid': FirebaseAuth.instance.currentUser?.uid,
-      'fcmToken': fcm,
-      'Foto1': img1,
-      'Foto2': "a",
-      'Foto3': "a",
-      'dataHora': dataHora
-    }).then((value) => print("Dados enviados."))
-        .catchError((error) => print("Erro ao enviar: $error"));
+    final result =
+        await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+            .httpsCallable("addEmergencia")
+            .call({
+              'nome': nome,
+              'tel': telefone,
+              'uid': FirebaseAuth.instance.currentUser?.uid,
+              'fcmToken': fcm,
+              'Foto1': img1,
+              'Foto2': "a",
+              'Foto3': "a",
+              'dataHora': dataHora
+            })
+            .then((value) => print("Dados enviados."))
+            .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
 
-class dentistaAceite extends StatefulWidget {
-  const dentistaAceite({super.key});
-
-  @override
-  _dentistaAceiteState createState() {
-    return _dentistaAceiteState();
-  }
-}
-
-class _dentistaAceiteState extends State<dentistaAceite> {
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Localizando Dentistas"),
-        ),
-        body: Center(
-        child:
-    );
-  }
-
-  Future<void> atualizarLista {
-
-  }
-}
-
+// class dentistaAceite extends StatefulWidget {
+//   const dentistaAceite({super.key});
+//
+//   @override
+//   _dentistaAceiteState createState() {
+//     return _dentistaAceiteState();
+//   }
+// }
+//
+// class _dentistaAceiteState extends State<dentistaAceite> {
+//
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//         appBar: AppBar(
+//           title: Text("Localizando Dentistas"),
+//         ),
+//         body: Center(
+//         child:
+//     );
+//   }
+//
+//   Future<void> atualizarLista {
+//
+//   }
+// }
