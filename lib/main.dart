@@ -216,8 +216,8 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                       child: Column(
                         children: [
                           FilledButton(
-                            onPressed: () {
-                              pegarImagemCamera();
+                            onPressed: () async{
+                              imagem = await pegarImagemCamera();
                             },
                             child: const Text('Tirar Foto'),
                           ),
@@ -230,7 +230,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                           ),
                           ElevatedButton(
                               onPressed: () {
-                                enviarInfo(myNomeController.text, myTelefoneController.text, imagem.toString());
+                                enviarInfo(myNomeController.text, myTelefoneController.text, imagem);
                               },
                               child: const Text('Enviar emergência'),
                           ),
@@ -265,26 +265,30 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   }
 
    Future<XFile?> pegarImagemCamera() async {
-    final PickedFile? imagemTemporaria =
-        await imagePicker.getImage(source: ImageSource.camera);
-    if (imagemTemporaria != null) {
-      setState(() {
-        imagemSelecionada = File(imagemTemporaria.path);
-      });
-    }
+    final ImagePicker _picker = ImagePicker();
+    XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Imagem da camera salva!')),
+    );
+    return imagem;
   }
 
-  Future<void>enviarInfo(String nome, String telefone, String imagem1) async {
+  Future<void>enviarInfo(String nome, String telefone, XFile? imagem1) async {
     final dataHora = "${DateTime.timestamp().day}/${DateTime.timestamp().month}/${DateTime.timestamp().year} ${DateTime.timestamp().hour}:${DateTime.timestamp().minute}";
     final fcm = await FirebaseMessaging.instance.getToken();
-    File file = File(imagem1);
     final img1 = "images/img-${DateTime.now().toString()}.jpg";
+    try {
+      await FirebaseStorage.instance.ref().child("/$img1").putFile(File(imagem1!.path));
+    } on FirebaseException catch (e) {
+      throw Exception('Erro: ${e.code}');
+    }
+
     final result = await FirebaseFunctions.instanceFor(region: 'southamerica-east1').httpsCallable("addEmergencia").call({
       'nome': nome,
       'tel': telefone,
       'uid': FirebaseAuth.instance.currentUser?.uid,
       'fcmToken': fcm,
-      'Foto1': FirebaseStorage.instance.ref(img1).putFile(file),
+      'Foto1': img1,
       'Foto2': "a",
       'Foto3': "a",
       'dataHora': dataHora
@@ -292,3 +296,33 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
         .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
+
+class dentistaAceite extends StatefulWidget {
+  const dentistaAceite({super.key});
+
+  @override
+  _dentistaAceiteState createState() {
+    return _dentistaAceiteState();
+  }
+}
+
+class _dentistaAceiteState extends State<dentistaAceite> {
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Localizando Dentistas"),
+        ),
+        body: Center(
+        child:
+    );
+  }
+
+  Future<void> atualizarLista {
+
+  }
+}
+
