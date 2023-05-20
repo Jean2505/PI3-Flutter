@@ -5,6 +5,8 @@ import 'dart:io';
 import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -12,13 +14,42 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:path/src/context.dart';
+import 'package:flutter/src/widgets/framework.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   userAuth();
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [Provider(create: (context) => NotificacaoFirebase())],
+    child: const MyApp(),
+  ));
+}
+
+class NotificacaoFirebase {
+  Future<void> initialize() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    mensagemNotificacao();
+  }
+
+  mensagemNotificacao() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print('Message also contained a notification: ${message.notification}');
+      }
+    });
+  }
 }
 
 Future<void> userAuth() async {
@@ -119,6 +150,17 @@ class CadastroEmergencia extends StatefulWidget {
 }
 
 class _CadastroEmergenciaState extends State<CadastroEmergencia> {
+  void initState() {
+    super.initState();
+    initializeFirebaseMessaging();
+  }
+
+  initializeFirebaseMessaging() async {
+    await Provider.of<NotificacaoFirebase>(context as BuildContext,
+            listen: false)
+        .initialize();
+  }
+
   final loading = ValueNotifier<bool>(false);
   ImagePicker imagePicker = ImagePicker();
   XFile? imagem;
@@ -174,7 +216,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Nome Completo:',
                           style: TextStyle(fontSize: 18, color: Colors.black87),
                         ),
@@ -186,7 +228,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             }
                             return null;
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.account_circle_sharp),
                             labelText: 'Digite seu nome',
@@ -197,11 +239,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   ),
                   Padding(
                     key: _formTelefoneKey,
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Telefone:',
                           style: TextStyle(fontSize: 18, color: Colors.black87),
                         ),
@@ -213,7 +256,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             }
                             return null;
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.phone),
                             labelText: 'Digite seu número do celular',
@@ -262,7 +305,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                               onPressed: () {
                                 enviarInfo(myNomeController.text,
                                     myTelefoneController.text, imagem);
-                                !loading.value ?  loading.value = !loading.value : null;
+                                !loading.value
+                                    ? loading.value = !loading.value
+                                    : null;
                               },
                               child: AnimatedBuilder(
                                   animation: loading,
@@ -314,7 +359,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Future<XFile?> pegarImagemGaleria() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
       const SnackBar(content: Text('Imagem salva!')),
     );
     //pasta de imagem no storage.
@@ -329,7 +374,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Future<XFile?> pegarImagemCamera() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
       const SnackBar(content: Text('Imagem da camera salva!')),
     );
     return imagem;
