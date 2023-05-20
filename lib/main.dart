@@ -1,11 +1,40 @@
+import 'package:firebase_authentication/firebase_authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  userAuth();
   runApp(const MyApp());
+}
+
+Future<void> userAuth() async{
+  try {
+     final userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
+    print("Signed in with temporary account.");
+  } on FirebaseAuthException catch (e) {
+    switch (e.code) {
+      case "operation-not-allowed":
+        print("Anonymous auth hasn't been enabled for this project.");
+        break;
+      default:
+        print("Unknown error.");
+    }
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -92,7 +121,16 @@ class CadastroEmergencia extends StatefulWidget {
 
 class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   ImagePicker imagePicker = ImagePicker();
+  XFile? imagem;
   File? imagemSelecionada;
+  //referencia para a coleção no banco
+  CollectionReference emergencias = FirebaseFirestore.instance.collection('emergencias');
+  //controller pra observar os TextFormField.
+  final myNomeController = TextEditingController();
+  final myTelefoneController = TextEditingController();
+  final _formNomeKey = GlobalKey<FormState>();
+  final _formTelefoneKey = GlobalKey<FormState>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +157,21 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   ],
                 ),
               ),
-              const Padding(
+              Padding(
+                key: _formNomeKey,
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Nome Completo:', style: TextStyle(fontSize: 18, color: Colors.black87),),
-                    TextField(
+                    TextFormField(
+                      controller: myNomeController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe um nome';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.account_circle_sharp),
@@ -135,13 +181,21 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   ],
                 ),
               ),
-              const Padding(
+              Padding(
+                key: _formTelefoneKey,
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Telefone:', style: TextStyle(fontSize: 18, color: Colors.black87),),
-                    TextField(
+                    TextFormField(
+                      controller: myTelefoneController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe um nome';
+                         }
+                        return null;
+                       },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.phone),
@@ -169,10 +223,16 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                           ),
                           const Text('Ou', style: TextStyle(fontSize: 14, color: Colors.deepPurple),),
                           OutlinedButton(
-                            onPressed: () {
-                              pegarImagemGaleria();
+                            onPressed: () async {
+                              imagem = await pegarImagemGaleria();
                             },
                             child: const Text('Foto da galeria'),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                enviarInfo(myNomeController.text, myTelefoneController.text, imagem.toString());
+                              },
+                              child: const Text('Enviar emergência'),
                           ),
                         ],
                       ),
@@ -187,17 +247,24 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     );
   }
 
-  pegarImagemGaleria() async {
-    final PickedFile? imagemTemporaria =
-        await imagePicker.getImage(source: ImageSource.gallery);
-    if (imagemTemporaria != null) {
+  //tentativa de fazer imagem ir para o storage
+  Future<XFile?> pegarImagemGaleria() async {
+    final ImagePicker _picker = ImagePicker();
+    XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Imagem salva!')),
+    );
+    return imagem;
+    //pasta de imagem no storage.
+    /*if (imagemTemporaria != null) {
       setState(() {
         imagemSelecionada = File(imagemTemporaria.path);
       });
     }
+     */
   }
 
-  pegarImagemCamera() async {
+   Future<XFile?> pegarImagemCamera() async {
     final PickedFile? imagemTemporaria =
         await imagePicker.getImage(source: ImageSource.camera);
     if (imagemTemporaria != null) {
@@ -205,5 +272,23 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
         imagemSelecionada = File(imagemTemporaria.path);
       });
     }
+  }
+
+  Future<void>enviarInfo(String nome, String telefone, String imagem1) async {
+    final dataHora = "${DateTime.timestamp().day}/${DateTime.timestamp().month}/${DateTime.timestamp().year} ${DateTime.timestamp().hour}:${DateTime.timestamp().minute}";
+    final fcm = await FirebaseMessaging.instance.getToken();
+    File file = File(imagem1);
+    final img1 = "images/img-${DateTime.now().toString()}.jpg";
+    final result = await FirebaseFunctions.instanceFor(region: 'southamerica-east1').httpsCallable("addEmergencia").call({
+      'nome': nome,
+      'tel': telefone,
+      'uid': FirebaseAuth.instance.currentUser?.uid,
+      'fcmToken': fcm,
+      'Foto1': FirebaseStorage.instance.ref(img1).putFile(file),
+      'Foto2': "a",
+      'Foto3': "a",
+      'dataHora': dataHora
+    }).then((value) => print("Dados enviados."))
+        .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
