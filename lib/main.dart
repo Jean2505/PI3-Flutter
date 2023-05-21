@@ -14,7 +14,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:path/src/context.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 void main() async {
@@ -23,21 +22,50 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   userAuth();
-  runApp(MultiProvider(
-    providers: [Provider(create: (context) => NotificacaoFirebase())],
-    child: const MyApp(),
-  ));
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //   print('Got a message whilst in the foreground!');
+  //   print('Message data: ${message.data}');
+  //   Navigator.push(context,
+  //     MaterialPageRoute(builder: (context) => const listaDentistas()),
+  //   );
+  //
+  //   if (message.notification != null) {
+  //     print('Message also contained a notification: ${message.notification}');
+  //   }
+  // });
+  runApp( const MyApp(),
+  );
 }
 
-class NotificacaoFirebase {
+// class dadosDentista {
+//
+//   late String nome;
+//   late String cv;
+//
+//   dentista({required String nome, required String cv})
+//
+// }
+/*class NotificacaoFirebase {
   Future<void> initialize() async {
+
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
-    mensagemNotificacao();
+    print("aaaaaaaaaaaaa");
   }
 
   mensagemNotificacao() async {
@@ -51,7 +79,7 @@ class NotificacaoFirebase {
     });
   }
 }
-
+*/
 Future<void> userAuth() async {
   try {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
@@ -150,16 +178,16 @@ class CadastroEmergencia extends StatefulWidget {
 }
 
 class _CadastroEmergenciaState extends State<CadastroEmergencia> {
-  void initState() {
+  /*void initState() {
     super.initState();
     initializeFirebaseMessaging();
-  }
+  }*/
 
-  initializeFirebaseMessaging() async {
-    await Provider.of<NotificacaoFirebase>(context as BuildContext,
-            listen: false)
+  /*initializeFirebaseMessaging() async {
+    await Provider.of<NotificacaoFirebase>(BuildContext as BuildContext,
+            listen: true)
         .initialize();
-  }
+  }*/
 
   final loading = ValueNotifier<bool>(false);
   ImagePicker imagePicker = ImagePicker();
@@ -308,6 +336,17 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                 !loading.value
                                     ? loading.value = !loading.value
                                     : null;
+                                FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+                                  print('Got a message whilst in the foreground!');
+                                  print('Message data: ${message.data}');
+                                  Navigator.push(this.context,
+                                    MaterialPageRoute(builder: (context) => const listaDentistas()),
+                                  );
+
+                                  if (message.notification != null) {
+                                    print('Message also contained a notification: ${message.notification}');
+                                  }
+                                });
                               },
                               child: AnimatedBuilder(
                                   animation: loading,
@@ -359,9 +398,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Future<XFile?> pegarImagemGaleria() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
-    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-      const SnackBar(content: Text('Imagem salva!')),
-    );
+
     //pasta de imagem no storage.
     if (imagem != null) {
       setState(() {
@@ -374,9 +411,6 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   Future<XFile?> pegarImagemCamera() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
-    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-      const SnackBar(content: Text('Imagem da camera salva!')),
-    );
     return imagem;
   }
 
@@ -412,31 +446,31 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   }
 }
 
-// class dentistaAceite extends StatefulWidget {
-//   const dentistaAceite({super.key});
-//
-//   @override
-//   _dentistaAceiteState createState() {
-//     return _dentistaAceiteState();
-//   }
-// }
-//
-// class _dentistaAceiteState extends State<dentistaAceite> {
-//
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: Text("Localizando Dentistas"),
-//         ),
-//         body: Center(
-//         child:
-//     );
-//   }
-//
-//   Future<void> atualizarLista {
-//
-//   }
-// }
+class listaDentistas extends StatefulWidget {
+    const listaDentistas({super.key});
+
+   @override
+   _listaDentistasState createState() => _listaDentistasState();
+}
+
+class _listaDentistasState extends State<listaDentistas> {
+
+    final List<String> dentistas = <String>['A', 'B', 'C'];
+    final List<int> colorCodes = <int>[600, 500, 100];
+
+   @override
+   Widget build(BuildContext context) {
+     return ListView.separated(
+       padding: const EdgeInsets.all(8),
+       itemCount: dentistas.length,
+       itemBuilder: (BuildContext context, int index) {
+          return Container(
+            height: 50,
+            color: Colors.cyan[colorCodes[index]],
+            child: Center(child: Text('Dentista ${dentistas[index]}')),
+          );
+       },
+       separatorBuilder: (BuildContext context, int index) => const Divider(),
+     );
+   }
+}
