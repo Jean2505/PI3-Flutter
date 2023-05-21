@@ -14,8 +14,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:flutter/src/widgets/framework.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -338,7 +336,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data}');
+                                  print('Message data: ${message.data.keys.elementAt(0)}');
                                   Navigator.push(this.context,
                                     MaterialPageRoute(builder: (context) => const listaDentistas()),
                                   );
