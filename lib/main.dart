@@ -46,14 +46,7 @@ void main() async {
   );
 }
 
-// class dadosDentista {
-//
-//   late String nome;
-//   late String cv;
-//
-//   dentista({required String nome, required String cv})
-//
-// }
+
 /*class NotificacaoFirebase {
   Future<void> initialize() async {
 
@@ -332,7 +325,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data.keys.elementAt(0)}');
+                                  print('Message data: ${message.data.values.elementAt(0)}');
                                   Navigator.push(this.context,
                                     MaterialPageRoute(builder: (context) => const listaDentistas()),
                                   );
@@ -388,12 +381,11 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     );
   }
 
-  //tentativa de fazer imagem ir para o storage
+  //função que pega imagem da galeria
   Future<XFile?> pegarImagemGaleria() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
 
-    //pasta de imagem no storage.
     if (imagem != null) {
       setState(() {
         imagemSelecionada = File(imagem.path);
@@ -402,6 +394,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     return imagem;
   }
 
+  //função que pega a imagem tirada com a camera
   Future<XFile?> pegarImagemCamera() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
@@ -449,7 +442,7 @@ class listaDentistas extends StatefulWidget {
 
 class _listaDentistasState extends State<listaDentistas> {
 
-    final List<String> dentistas = <String>['A', 'B', 'C'];
+    final List<listaDadosDentista> dentistas = [listaDadosDentista().dentista(telefone: '${}', email: email, cv: cv)];
     final List<int> colorCodes = <int>[600, 500, 100];
 
    @override
@@ -458,13 +451,61 @@ class _listaDentistasState extends State<listaDentistas> {
        padding: const EdgeInsets.all(8),
        itemCount: dentistas.length,
        itemBuilder: (BuildContext context, int index) {
-          return Container(
-            height: 50,
-            color: Colors.cyan[colorCodes[index]],
-            child: Center(child: Text('Dentista ${dentistas[index]}')),
+          return GestureDetector(
+            onTap: () =>
+                Navigator.push(this.context,
+                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${dentistas[index]}')),
+                ),
+            child: Container(
+              height: 50,
+              color: Colors.cyan[colorCodes[index]],
+              child: Center(child: Text('Dentista ${dentistas[index]}')),
+
+            ),
           );
        },
        separatorBuilder: (BuildContext context, int index) => const Divider(),
      );
    }
+}
+
+class dadosDentista extends StatefulWidget {
+  const dadosDentista({super.key, required this.title});
+
+  final String title;
+
+  @override
+  _dadosDentistaState createState() => _dadosDentistaState();
+}
+
+class _dadosDentistaState extends State<dadosDentista> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: const Center(
+        child: Text('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'),
+      )
+    );
+  }
+
+}
+
+class listaDadosDentista {
+
+    late String telefone;
+    late String email;
+    late String cv;
+
+    dentista({ required String telefone, required String email, required String cv}) {
+
+      this.telefone = telefone;
+      this.email = email;
+      this.cv = cv;
+
+    }
+
 }
