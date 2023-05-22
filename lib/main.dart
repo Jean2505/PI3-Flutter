@@ -331,7 +331,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                   print('Got a message whilst in the foreground!');
                                   print('Message data: ${message.data.values.elementAt(0)}');
                                   Navigator.push(this.context,
-                                    MaterialPageRoute(builder: (context) => const listaDentistas()),
+                                    MaterialPageRoute(builder: (context) => listaDentistas(nome: '${message.data.values.elementAt(1)}')),
                                   );
 
                                   if (message.notification != null) {
@@ -438,7 +438,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
 }
 
 class listaDentistas extends StatefulWidget {
-    const listaDentistas({super.key});
+    const listaDentistas({super.key, required this.nome});
+    
+    final String nome;
 
    @override
    _listaDentistasState createState() => _listaDentistasState();
@@ -446,24 +448,34 @@ class listaDentistas extends StatefulWidget {
 
 class _listaDentistasState extends State<listaDentistas> {
 
-    final List<listaDadosDentista> dentistas = [listaDadosDentista().dentista(telefone: '${}', email: email, cv: cv)];
+    final List<String> _nomeDentistas = <String>[];
     final List<int> colorCodes = <int>[600, 500, 100];
+
+    Future<void> colocaNomeNaLista(String nome) async {
+
+      setState(() {
+        _nomeDentistas.add(nome);
+      });
+
+    }
+
+
 
    @override
    Widget build(BuildContext context) {
      return ListView.separated(
        padding: const EdgeInsets.all(8),
-       itemCount: dentistas.length,
+       itemCount: _nomeDentistas.length,
        itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () =>
                 Navigator.push(this.context,
-                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${dentistas[index]}')),
+                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${_nomeDentistas[index]}')),
                 ),
             child: Container(
               height: 50,
               color: Colors.cyan[colorCodes[index]],
-              child: Center(child: Text('Dentista ${dentistas[index]}')),
+              child: Center(child: Text('${_nomeDentistas[index]}')),
 
             ),
           );
