@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Teeth Kids',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
       home: Scaffold(
@@ -127,9 +127,13 @@ class MyHomePage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
+          width: 300,
           alignment: Alignment.bottomCenter,
           margin: const EdgeInsets.only(top: 15, bottom: 24),
-          child: FilledButton(
+          child: ElevatedButton(
+            style: const ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -139,20 +143,12 @@ class MyHomePage extends StatelessWidget {
                         )),
               );
             },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.sos),
-                Padding(
-                  padding: EdgeInsets.all(13),
-                  child: Text(
-                    'Solicitar Socorro',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              ],
+            child: CircleAvatar(
+              radius: 150,
+              backgroundColor: Colors.transparent,
+              child: Image.asset('assets/botaofinal.png'),
             ),
-          ),
+        ),
         ),
       ],
     );
