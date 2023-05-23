@@ -33,9 +33,9 @@ void main() async {
 
   // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
   //   print('Got a message whilst in the foreground!');
-  //   print('Message data: ${message.data}');
-  //   Navigator.push(context,
-  //     MaterialPageRoute(builder: (context) => const listaDentistas()),
+  //   print('Message data: ${message.data.values.elementAt(0)}');
+  //   Navigator.push(this.context,
+  //     MaterialPageRoute(builder: (context) => listaDentistas(nome: '${message.data.values.elementAt(1)}')),
   //   );
   //
   //   if (message.notification != null) {
@@ -325,10 +325,21 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data.values.elementAt(0)}');
-                                  Navigator.push(this.context,
-                                    MaterialPageRoute(builder: (context) => listaDentistas(nome: '${message.data.values.elementAt(1)}')),
-                                  );
+                                  print('Message data: ${message.data['telefone']}');
+                                  if(_nomesDentista.length < 5) {
+                                    setState(() =>
+                                        _nomesDentista.add(
+                                            message.data['nome']));
+                                  }
+                                  if(_nomesDentista.length == 1) {
+
+                                    Navigator.push(this.context,
+                                      MaterialPageRoute(builder: (context) => const listaDentistas())
+                                    );
+
+                                  }
+
+                                  print(_nomesDentista);
 
                                   if (message.notification != null) {
                                     print('Message also contained a notification: ${message.notification}');
@@ -434,9 +445,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
 }
 
 class listaDentistas extends StatefulWidget {
-    const listaDentistas({super.key, required this.nome});
-    
-    final String nome;
+    const listaDentistas({super.key});
 
    @override
    _listaDentistasState createState() => _listaDentistasState();
@@ -444,34 +453,43 @@ class listaDentistas extends StatefulWidget {
 
 class _listaDentistasState extends State<listaDentistas> {
 
-    final List<String> _nomeDentistas = <String>[];
-    final List<int> colorCodes = <int>[600, 500, 100];
+    final List<int> colorCodes = <int>[600, 500, 100, 100, 100, 100];
+    late Timer _everySecond;
 
-    Future<void> colocaNomeNaLista(String nome) async {
+    @override
+    void initState() {
+      super.initState();
 
-      setState(() {
-        _nomeDentistas.add(nome);
-      });
+        _everySecond = Timer.periodic(Duration(seconds: 5), (Timer t) {
+          if(_nomesDentista.length != 5) {
+            setState(() {});
+          }
+        });
 
     }
 
+    // Future<void> colocaNomeNaLista(String nome) async {
+    //
+    //   setState(() => _nomeDentistas.add(nome));
+    //
+    // }
 
 
    @override
    Widget build(BuildContext context) {
      return ListView.separated(
        padding: const EdgeInsets.all(8),
-       itemCount: _nomeDentistas.length,
+       itemCount: _nomesDentista.length,
        itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () =>
                 Navigator.push(this.context,
-                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${_nomeDentistas[index]}')),
+                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${_nomesDentista[index]}')),
                 ),
             child: Container(
               height: 50,
               color: Colors.cyan[colorCodes[index]],
-              child: Center(child: Text('${_nomeDentistas[index]}')),
+              child: Center(child: Text('${_nomesDentista[index]}')),
 
             ),
           );
@@ -521,3 +539,5 @@ class listaDadosDentista {
     }
 
 }
+
+final List<String> _nomesDentista = <String>[];
