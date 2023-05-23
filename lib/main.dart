@@ -326,7 +326,13 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
                                   print('Message data: ${message.data['telefone']}');
+
                                   if(_nomesDentista.length < 5) {
+
+                                    listaDadosDentista auxVar = listaDadosDentista(telefone: message.data['telefone'], cv: message.data['cv'], nome: message.data['nome']);
+
+                                    _dadosDoDentista.add(auxVar);
+
                                     setState(() =>
                                         _nomesDentista.add(
                                             message.data['nome']));
@@ -334,7 +340,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                   if(_nomesDentista.length == 1) {
 
                                     Navigator.push(this.context,
-                                      MaterialPageRoute(builder: (context) => const listaDentistas())
+                                      MaterialPageRoute(builder: (context) => listaDentistas())
                                     );
 
                                   }
@@ -463,17 +469,10 @@ class _listaDentistasState extends State<listaDentistas> {
         _everySecond = Timer.periodic(Duration(seconds: 5), (Timer t) {
           if(_nomesDentista.length != 5) {
             setState(() {});
+
           }
         });
-
     }
-
-    // Future<void> colocaNomeNaLista(String nome) async {
-    //
-    //   setState(() => _nomeDentistas.add(nome));
-    //
-    // }
-
 
    @override
    Widget build(BuildContext context) {
@@ -484,12 +483,12 @@ class _listaDentistasState extends State<listaDentistas> {
           return GestureDetector(
             onTap: () =>
                 Navigator.push(this.context,
-                  MaterialPageRoute(builder: (context) => dadosDentista(title: '${_nomesDentista[index]}')),
+                  MaterialPageRoute(builder: (context) => dadosDentista(title: _nomesDentista[index], index: index)),
                 ),
             child: Container(
               height: 50,
               color: Colors.cyan[colorCodes[index]],
-              child: Center(child: Text('${_nomesDentista[index]}')),
+              child: Center(child: Text(_nomesDentista[index])),
 
             ),
           );
@@ -500,9 +499,10 @@ class _listaDentistasState extends State<listaDentistas> {
 }
 
 class dadosDentista extends StatefulWidget {
-  const dadosDentista({super.key, required this.title});
+  const dadosDentista({super.key, required this.title, required this.index});
 
   final String title;
+  final int index;
 
   @override
   _dadosDentistaState createState() => _dadosDentistaState();
@@ -510,34 +510,62 @@ class dadosDentista extends StatefulWidget {
 
 class _dadosDentistaState extends State<dadosDentista> {
 
+  List<String> rejeitados = <String>[];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: const Center(
-        child: Text('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'),
+      body: Center(
+        child: Column(
+          children: [
+            Text(_dadosDoDentista[widget.index].telefone),
+            Text(_dadosDoDentista[widget.index].cv),
+            ElevatedButton(
+                onPressed: () async {
+
+                  var x = _dadosDoDentista.removeAt(widget.index);
+                  _dadosDoDentista.forEach((element) {
+                    rejeitados.add(element.nome);
+                  });
+                  escolherDentista(x, rejeitados);
+
+                  Navigator.popUntil(context, ModalRoute.withName('/MyHomePage'));
+
+                },
+                child: const Text('Aceitar!'),
+            ),
+          ],
+        ),
       )
     );
+  }
+
+  Future<void> escolherDentista(listaDadosDentista aceito, List<String> rejeitados) async {
+
+    await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+        .httpsCallable("escolheDentista")
+          .call({
+            'rej': rejeitados,
+            'escolhido': aceito.nome,
+          })
+          .then((value) => print(value.data['status']))
+            .catchError((error) => print("Erro ao enviar: $error"));
   }
 
 }
 
 class listaDadosDentista {
 
+    late String nome;
     late String telefone;
-    late String email;
     late String cv;
 
-    dentista({ required String telefone, required String email, required String cv}) {
-
-      this.telefone = telefone;
-      this.email = email;
-      this.cv = cv;
-
-    }
+    listaDadosDentista({ required this.nome, required this.telefone, required this.cv});
 
 }
 
 final List<String> _nomesDentista = <String>[];
+final List<listaDadosDentista> _dadosDoDentista = <listaDadosDentista>[];
