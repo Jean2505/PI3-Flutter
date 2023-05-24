@@ -92,10 +92,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Teeth Kids',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
+        fontFamily: 'AvenirNextLTPro'
       ),
       home: Scaffold(
         appBar: AppBar(
@@ -191,17 +193,23 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   final _formNomeKey = GlobalKey<FormState>();
   final _formTelefoneKey = GlobalKey<FormState>();
 
+  final colorAzulEscuro = const Color(0xff064066);
+  final colorAzulClaro = const Color(0xff56a2d9);
+  final colorAzulCinza = const Color(0xff91b5cf);
+  final colorAmarelo = const Color(0xffffd803);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: Stack(
         children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20),
+          Center (
+            child: Padding (
+              padding: const EdgeInsets.only(top: 0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -218,8 +226,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                           'Preencha com suas informações',
                           style: TextStyle(
                               fontSize: 20,
-                              color: Colors.deepPurple,
-                              fontStyle: FontStyle.italic),
+                              color: Color(0xff064066),
+                              fontFamily: 'AvenirNextLTPro-BoldCn',
+                              fontStyle: FontStyle.normal),
                         ),
                       ],
                     ),
@@ -227,15 +236,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   Padding(
                     key: _formNomeKey,
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Nome Completo:',
-                          style: TextStyle(fontSize: 18, color: Colors.black87),
-                        ),
                         TextFormField(
+
                           controller: myNomeController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -244,8 +250,16 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             return null;
                           },
                           decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.account_circle_sharp),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff56a2d9))
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff56a2d9))
+                            ),
+                            prefixIcon: Icon(
+                                Icons.account_circle_sharp,
+                                color: Color(0xff56a2d9),
+                            ),
                             labelText: 'Digite seu nome',
                           ),
                         ),
@@ -255,14 +269,10 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   Padding(
                     key: _formTelefoneKey,
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Telefone:',
-                          style: TextStyle(fontSize: 18, color: Colors.black87),
-                        ),
                         TextFormField(
                           controller: myTelefoneController,
                           validator: (value) {
@@ -272,9 +282,16 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             return null;
                           },
                           decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.phone),
-                            labelText: 'Digite seu número do celular',
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff56a2d9))
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff56a2d9))
+                            ),
+                            prefixIcon: Icon(
+                                Icons.phone,
+                                color: Color(0xff56a2d9),),
+                            labelText: 'Digite seu número de celular',
                           ),
                         ),
                       ],
@@ -292,31 +309,65 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                 children: [
                   Container(
                     alignment: Alignment.bottomCenter,
-                    margin: const EdgeInsets.only(top: 5, bottom: 24),
+                    margin: const EdgeInsets.only(top: 0, bottom: 64),
                     child: Padding(
                       padding: const EdgeInsets.all(5),
                       child: Column(
                         children: [
-                          FilledButton(
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.camera_alt_outlined,
+                            color: Colors.white
+                            ),
                             onPressed: () async {
                               imagem = await pegarImagemCamera();
                             },
-                            child: const Text('Tirar Foto'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(140,45),
+                              primary: Color(0xff56a2d9),
+                            ),
+                            label: const Text('Tirar foto',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'AvenirNextLTPro-BoldCn',
+                              ),
+                            ),
+
                           ),
                           const Text(
                             'Ou',
                             style: TextStyle(
-                                fontSize: 14, color: Colors.deepPurple),
+                                fontSize: 14, color: Color(0xff064066)),
                           ),
-                          OutlinedButton(
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.photo,
+                                color: Colors.white
+                            ),
                             onPressed: () async {
                               imagem = await pegarImagemGaleria();
                             },
-                            child: const Text('Foto da galeria'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(140,45),
+                              primary: Color(0xff56a2d9),
+                            ),
+                            label: const Text('Foto salva',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'AvenirNextLTPro-BoldCn',
+                              ),
+                            ),
+
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 100),
-                            child: OutlinedButton(
+                            padding: const EdgeInsets.only(top: 80),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(200, 60),
+                                side: BorderSide(
+                                  width: 3,
+                                  color: Color(0xff56a2d9),
+                                ),
+                                primary: Color(0xffffd803),
+                              ),
                               onPressed: () {
                                 enviarInfo(myNomeController.text,
                                     myTelefoneController.text, imagem);
@@ -362,15 +413,18 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                                 width: 20,
                                                 height: 20,
                                                 child:
-                                                    CircularProgressIndicator(),
+                                                    CircularProgressIndicator(
+                                                      color: Color(0xff56a2d9),
+                                                    ),
                                               ),
                                               Padding(
                                                 padding:
                                                     EdgeInsets.only(left: 20),
                                                 child: Text(
-                                                  'Procurando Dentistas',
+                                                  'Procurando dentistas',
                                                   style:
-                                                      TextStyle(fontSize: 16),
+                                                      TextStyle(fontSize: 20,
+                                                      color: Color(0xff56a2d9),),
                                                 ),
                                               ),
                                             ],
@@ -378,8 +432,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                         : const Padding(
                                             padding: EdgeInsets.all(5),
                                             child: Text(
-                                              'Enviar Emergência',
-                                              style: TextStyle(fontSize: 16),
+                                              'Solicitar emergência',
+                                              style: TextStyle(fontSize: 20,
+                                              color: Color(0xff56a2d9)),
                                             ),
                                           );
                                   }),
@@ -476,24 +531,49 @@ class _listaDentistasState extends State<listaDentistas> {
 
    @override
    Widget build(BuildContext context) {
-     return ListView.separated(
-       padding: const EdgeInsets.all(8),
-       itemCount: _nomesDentista.length,
-       itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () =>
-                Navigator.push(this.context,
-                  MaterialPageRoute(builder: (context) => dadosDentista(title: _nomesDentista[index], index: index)),
-                ),
-            child: Container(
-              height: 50,
-              color: Colors.cyan[colorCodes[index]],
-              child: Center(child: Text(_nomesDentista[index])),
+     return Scaffold(
+       appBar: AppBar(
+         title: const Text('Lista de dentistas'),
+       ),
+       body: ListView.separated(
+         padding: const EdgeInsets.all(8),
+         itemCount: _nomesDentista.length,
+         itemBuilder: (BuildContext context, int index) {
+           return GestureDetector(
+             onTap: () =>
+                 Navigator.push(this.context,
+                   MaterialPageRoute(builder: (context) => dadosDentista(title: _nomesDentista[index], index: index)),
+                 ),
+             child: Container(
+               decoration: BoxDecoration(
+                 color: Color(0xff56a2d9),
+                 border: Border.all(
+                   width: 5,
+                   color: Color(0xff064066),
+                 ),
+                 borderRadius: BorderRadius.all(Radius.circular(10)),
+               ),
+               height: 75,
 
-            ),
-          );
-       },
-       separatorBuilder: (BuildContext context, int index) => const Divider(),
+               child: Column(
+                 children: [
+                   //Icon(Icons.arrow_forward_ios),
+                   Center(
+                     child: Text(
+                       _nomesDentista[index],
+                       style: const TextStyle(
+                          fontFamily: 'AvenirNextLTPro-BoldCn',
+                          fontSize: 25,
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+           );
+         },
+         separatorBuilder: (BuildContext context, int index) => const Divider(),
+       ),
      );
    }
 }
