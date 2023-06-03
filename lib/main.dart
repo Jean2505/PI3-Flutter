@@ -125,34 +125,43 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 300,
-          alignment: Alignment.bottomCenter,
-          margin: const EdgeInsets.only(top: 15, bottom: 24),
-          child: ElevatedButton(
-            style: const ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
+    return SizedBox(
+      child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(image: AssetImage('assets/fundo.png'),
+              fit: BoxFit.cover,
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const CadastroEmergencia(
-                          title: 'Cadastrar emergência',
-                        )),
-              );
-            },
-            child: CircleAvatar(
-              radius: 150,
-              backgroundColor: Colors.transparent,
-              child: Image.asset('assets/botaofinal.png'),
-            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 300,
+                alignment: Alignment.bottomCenter,
+                margin: const EdgeInsets.only(top: 15, bottom: 24),
+                child: ElevatedButton(
+                  style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CadastroEmergencia(
+                                title: 'Cadastrar emergência',
+                              )),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 150,
+                    backgroundColor: Colors.transparent,
+                    child: Image.asset('assets/botaofinal.png'),
+                  ),
+              ),
+              ),
+            ],
+          ),
         ),
-        ),
-      ],
     );
   }
 }
