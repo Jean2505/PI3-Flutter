@@ -46,6 +46,7 @@ dependencies:
   cloud_functions: ^4.3.1
   firebase_messaging: ^14.6.1
   firebase_authentication: ^0.0.14
+  flutter_rating_bar: ^4.0.1
 
 dev_dependencies:
   flutter_test:

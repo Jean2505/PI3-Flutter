@@ -13,6 +13,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -158,6 +159,56 @@ class MyHomePage extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class Avaliacao extends StatefulWidget {
+  const Avaliacao({super.key});
+
+  @override
+  State<Avaliacao> createState() => _AvaliacaoState();
+}
+
+class _AvaliacaoState extends State<Avaliacao> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      child: Padding(
+        padding: EdgeInsets.all(25),
+        child: Form(
+            child: Column(
+              children: [
+                const Text(
+                  "Avalie seu dentista",
+                  style: TextStyle(fontSize: 20),
+                ),
+            RatingBar.builder(
+              initialRating: 1,
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                print(rating);
+              },
+            ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: "Comente sua experiência!"),
+                ),
+                ElevatedButton(onPressed: () {},
+                  child: Text("Enviar"),
+                ),
+              ],
+            )
+        ),
+      ),
     );
   }
 }
@@ -398,6 +449,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     Navigator.push(this.context,
                                       MaterialPageRoute(builder: (context) => listaDentistas())
                                     );
+
+                                  }
+
+                                  if(message.data != null){
+
+                                    showModalBottomSheet(context: context, builder: (context) => Avaliacao());
 
                                   }
 
