@@ -95,108 +95,69 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Teeth Kids',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        useMaterial3: true,
-        fontFamily: 'AvenirNextLTPro'
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Teeth Kids',
-          ),
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MyHomePage(title: 'Teeth Kids'),
-            ],
-          ),
-        ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          useMaterial3: true,
+          fontFamily: 'AvenirNextLTPro'),
+      home: const Scaffold(
+        body: MyHomePage(),
       ),
     );
   } //Widget
 } // MyA
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key});
 
-  final String title;
-  
-  
+  // final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage('assets/fundo.png'),
-            fit: BoxFit.fill,
-          ),
+    return Stack(
+      children: [
+        Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/fundo.png"), fit: BoxFit.cover,
+                )
+            )
         ),
-        child: Row(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 300,
-              alignment: Alignment.bottomCenter,
-              margin: const EdgeInsets.only(top: 15, bottom: 24),
-              child: ElevatedButton(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CadastroEmergencia(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 300,
+                  alignment: Alignment.bottomCenter,
+                  margin: const EdgeInsets.only(top: 15, bottom: 24),
+                  child: ElevatedButton(
+                    style: const ButtonStyle(
+                        backgroundColor:
+                        MaterialStatePropertyAll<Color>(Colors.white)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CadastroEmergencia(
                               title: 'Cadastrar emergência',
                             )),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 150,
-                  backgroundColor: Colors.transparent,
-                  child: Image.asset('assets/botaofinal.png'),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 150,
+                      backgroundColor: Colors.transparent,
+                      child: Image.asset('assets/botaofinal.png'),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
-      );
-  }
-}
-
-class Avaliacao extends StatefulWidget {
-  const Avaliacao({super.key});
-
-  @override
-  State<Avaliacao> createState() => _AvaliacaoState();
-}
-
-class _AvaliacaoState extends State<Avaliacao> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      child: Padding(
-        padding: EdgeInsets.all(25),
-        child: Form(
-          child: Column(
-            children: [
-              const Text(
-                "Avalie seu dentista",
-                style: TextStyle(fontSize: 20),
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "Comente sua experiência!"),
-              ),
-              ElevatedButton(onPressed: () {},
-                child: Text("Enviar"),
-              ),
-            ],
-          )
-        ),
-      ),
+      ],
     );
   }
 }
@@ -420,7 +381,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data}');
+                                  print('Message data: ${message.data['telefone']}');
 
                                   if(_nomesDentista.length < 5) {
 
@@ -437,12 +398,6 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     Navigator.push(this.context,
                                       MaterialPageRoute(builder: (context) => listaDentistas())
                                     );
-
-                                  }
-
-                                  if(message.data != null){
-
-                                    showModalBottomSheet(context: context, builder: (context) => Avaliacao());
 
                                   }
 
