@@ -122,46 +122,81 @@ class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
+  
+  
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(image: AssetImage('assets/fundo.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 300,
-                alignment: Alignment.bottomCenter,
-                margin: const EdgeInsets.only(top: 15, bottom: 24),
-                child: ElevatedButton(
-                  style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CadastroEmergencia(
-                                title: 'Cadastrar emergência',
-                              )),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 150,
-                    backgroundColor: Colors.transparent,
-                    child: Image.asset('assets/botaofinal.png'),
-                  ),
-              ),
-              ),
-            ],
+    return Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(image: AssetImage('assets/fundo.png'),
+            fit: BoxFit.fill,
           ),
         ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 300,
+              alignment: Alignment.bottomCenter,
+              margin: const EdgeInsets.only(top: 15, bottom: 24),
+              child: ElevatedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll<Color>(Colors.white)
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CadastroEmergencia(
+                              title: 'Cadastrar emergência',
+                            )),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 150,
+                  backgroundColor: Colors.transparent,
+                  child: Image.asset('assets/botaofinal.png'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+  }
+}
+
+class Avaliacao extends StatefulWidget {
+  const Avaliacao({super.key});
+
+  @override
+  State<Avaliacao> createState() => _AvaliacaoState();
+}
+
+class _AvaliacaoState extends State<Avaliacao> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      child: Padding(
+        padding: EdgeInsets.all(25),
+        child: Form(
+          child: Column(
+            children: [
+              const Text(
+                "Avalie seu dentista",
+                style: TextStyle(fontSize: 20),
+              ),
+              TextFormField(
+                decoration: InputDecoration(labelText: "Comente sua experiência!"),
+              ),
+              ElevatedButton(onPressed: () {},
+                child: Text("Enviar"),
+              ),
+            ],
+          )
+        ),
+      ),
     );
   }
 }
@@ -385,7 +420,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data['telefone']}');
+                                  print('Message data: ${message.data}');
 
                                   if(_nomesDentista.length < 5) {
 
@@ -402,6 +437,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                     Navigator.push(this.context,
                                       MaterialPageRoute(builder: (context) => listaDentistas())
                                     );
+
+                                  }
+
+                                  if(message.data != null){
+
+                                    showModalBottomSheet(context: context, builder: (context) => Avaliacao());
 
                                   }
 
