@@ -1,5 +1,6 @@
 import 'package:firebase_authentication/firebase_authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
@@ -174,10 +175,10 @@ class MyHomePage extends StatelessWidget {
 }
 
 class Avaliacao extends StatefulWidget {
-  const Avaliacao({super.key, required this.nome_socorrista, required this.nome_dentista});
+  const Avaliacao({super.key, required this.nome_socorrista, required this.uid_dentista});
 
   final String nome_socorrista;
-  final String nome_dentista;
+  final String uid_dentista;
 
   @override
   State<Avaliacao> createState() => _AvaliacaoState();
@@ -222,6 +223,8 @@ class _AvaliacaoState extends State<Avaliacao> {
                   },
                 ),
                 TextFormField(
+                  maxLength: 280,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   controller: myComentarioAppController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -253,6 +256,8 @@ class _AvaliacaoState extends State<Avaliacao> {
                   },
                 ),
                 TextFormField(
+                  maxLength: 280,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   controller: myComentarioDentController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -264,7 +269,7 @@ class _AvaliacaoState extends State<Avaliacao> {
                 ),
                 ElevatedButton(onPressed: () {
                   print('${myRatingDent}, ${myRatingApp}, ${myComentarioDentController.text}, ${myComentarioAppController.text}');
-                  enviaAvaliacao(widget.nome_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
+                  enviaAvaliacao(widget.uid_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
                 },
                   child: const Text("Enviar"),
                 ),
@@ -275,12 +280,12 @@ class _AvaliacaoState extends State<Avaliacao> {
     );
   }
 
-  Future<void> enviaAvaliacao(String nomeDent, String nomeSocorrista, double notaDent, double notaApp, String comentarioDent, String comentarioApp) async {
+  Future<void> enviaAvaliacao(String uidDent, String nomeSocorrista, double notaDent, double notaApp, String comentarioDent, String comentarioApp) async {
 
     await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
         .httpsCallable("addAvaliacao")
           .call({
-            'nomeDentista': nomeDent,
+            'uidDentista': uidDent,
             'nome': nomeSocorrista,
             'aval': notaDent,
             'coment': comentarioDent,
@@ -377,7 +382,6 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextFormField(
-
                           controller: myNomeController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -560,7 +564,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                   }
                                    if(message.data['text'] == 'finalizada'){
 
-                                     showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, nome_dentista: message.data['nome']));
+                                     showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, uid_dentista: message.data['uid']));
 
                                    }
 
