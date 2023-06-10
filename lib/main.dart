@@ -14,6 +14,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +36,10 @@ void main() async {
     provisional: false,
     sound: true,
   );
+  tz.initializeTimeZones();
+  final location = tz.getLocation('America/Sao_Paulo');
+  print(location);
+  tz.setLocalLocation(location);
 
   // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
   //   print('Got a message whilst in the foreground!');
@@ -174,36 +183,58 @@ class _AvaliacaoState extends State<Avaliacao> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
       child: Padding(
-        padding: EdgeInsets.all(25),
+        padding: const EdgeInsets.all(25),
         child: Form(
             child: Column(
               children: [
                 const Text(
+                  "Avalie o aplicativo",
+                  style: TextStyle(fontSize: 20),
+                ),
+                RatingBar.builder(
+                  initialRating: 0,
+                  minRating: 0,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: "Comente sua experiência!"),
+                ),
+
+                const Text(
                   "Avalie seu dentista",
                   style: TextStyle(fontSize: 20),
                 ),
-            RatingBar.builder(
-              initialRating: 1,
-              minRating: 1,
-              direction: Axis.horizontal,
-              allowHalfRating: false,
-              itemCount: 5,
-              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              onRatingUpdate: (rating) {
-                print(rating);
-              },
-            ),
+                RatingBar.builder(
+                  initialRating: 0,
+                  minRating: 0,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: "Comente sua experiência!"),
+                  decoration: const InputDecoration(labelText: "Comente sua experiência!"),
                 ),
                 ElevatedButton(onPressed: () {},
-                  child: Text("Enviar"),
+                  child: const Text("Enviar"),
                 ),
               ],
             )
@@ -236,7 +267,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
 
   final loading = ValueNotifier<bool>(false);
   ImagePicker imagePicker = ImagePicker();
-  XFile? imagem;
+  XFile? imagem1;
+  XFile? imagem2;
+  XFile? imagem3;
   File? imagemSelecionada;
 
   //referencia para a coleção no banco
@@ -375,13 +408,13 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             color: Colors.white
                             ),
                             onPressed: () async {
-                              imagem = await pegarImagemCamera();
+                              imagem1 = await pegarImagemCamera_lesao();
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(140,45),
                               primary: Color(0xff56a2d9),
                             ),
-                            label: const Text('Tirar foto',
+                            label: const Text('Foto da lesão',
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'AvenirNextLTPro-BoldCn',
@@ -389,23 +422,39 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             ),
 
                           ),
-                          const Text(
-                            'Ou',
-                            style: TextStyle(
-                                fontSize: 14, color: Color(0xff064066)),
-                          ),
+
                           ElevatedButton.icon(
-                            icon: const Icon(Icons.photo,
+                            icon: const Icon(Icons.camera_alt_outlined,
                                 color: Colors.white
                             ),
                             onPressed: () async {
-                              imagem = await pegarImagemGaleria();
+                              imagem2 = await pegarImagemCamera_socorrista();
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(140,45),
                               primary: Color(0xff56a2d9),
                             ),
-                            label: const Text('Foto salva',
+                            label: const Text('Foto do socorrista',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'AvenirNextLTPro-BoldCn',
+                              ),
+                            ),
+
+                          ),
+
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.camera_alt_outlined,
+                                color: Colors.white
+                            ),
+                            onPressed: () async {
+                              imagem3 = await pegarImagemCamera_docSocorrista();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(140,45),
+                              primary: Color(0xff56a2d9),
+                            ),
+                            label: const Text('Foto do documento',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'AvenirNextLTPro-BoldCn',
@@ -426,37 +475,47 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                               ),
                               onPressed: () {
                                 enviarInfo(myNomeController.text,
-                                    myTelefoneController.text, imagem);
+                                    myTelefoneController.text, imagem1, imagem2, imagem3);
                                 !loading.value
                                     ? loading.value = !loading.value
                                     : null;
                                 FirebaseMessaging.onMessage.listen((RemoteMessage message) {
                                   print('Got a message whilst in the foreground!');
-                                  print('Message data: ${message.data['telefone']}');
+                                  print('Message data: ${message.data}');
 
-                                  if(_nomesDentista.length < 5) {
+                                  if(message.data['text'] == 'aceita') {
+                                    if (_nomesDentista.length < 5) {
+                                      listaDadosDentista auxVar = listaDadosDentista(
+                                          telefone: message.data['telefone'],
+                                          cv: message.data['cv'],
+                                          nome: message.data['nome']);
 
-                                    listaDadosDentista auxVar = listaDadosDentista(telefone: message.data['telefone'], cv: message.data['cv'], nome: message.data['nome']);
+                                      _dadosDoDentista.add(auxVar);
 
-                                    _dadosDoDentista.add(auxVar);
-
-                                    setState(() =>
-                                        _nomesDentista.add(
-                                            message.data['nome']));
+                                      setState(() =>
+                                          _nomesDentista.add(
+                                              message.data['nome']));
+                                    }
+                                    if (_nomesDentista.length == 1) {
+                                      Navigator.push(this.context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  listaDentistas())
+                                      );
+                                    }
                                   }
-                                  if(_nomesDentista.length == 1) {
+
+                                  if(message.data['text'] == 'localizacao'){
 
                                     Navigator.push(this.context,
-                                      MaterialPageRoute(builder: (context) => listaDentistas())
+                                        MaterialPageRoute(builder: (context) => Maps(lat: double.parse('${message.data['lat']}'),long: double.parse('${message.data['long']}')))
                                     );
-
                                   }
-
-                                  if(message.data != null){
-
-                                    showModalBottomSheet(context: context, builder: (context) => Avaliacao());
-
-                                  }
+                                  // if(message.data != null){
+                                  //
+                                  //   showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao());
+                                  //
+                                  // }
 
                                   print(_nomesDentista);
 
@@ -515,39 +574,79 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     );
   }
 
-  //função que pega imagem da galeria
-  Future<XFile?> pegarImagemGaleria() async {
-    final ImagePicker _picker = ImagePicker();
-    XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
+  // //função que pega imagem da galeria
+  // Future<XFile?> pegarImagemGaleria() async {
+  //   final ImagePicker _picker = ImagePicker();
+  //   XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
+  //
+  //   if (imagem != null) {
+  //     setState(() {
+  //       imagemSelecionada = File(imagem.path);
+  //     });
+  //   }
+  //   return imagem;
+  // } LEMBRAR DE APAGAR DEPOIS
 
-    if (imagem != null) {
-      setState(() {
-        imagemSelecionada = File(imagem.path);
-      });
-    }
-    return imagem;
+  //função que pega a imagem tirada com a camera
+  Future<XFile?> pegarImagemCamera_lesao() async {
+    final ImagePicker _picker = ImagePicker();
+    XFile? imagem1 = await _picker.pickImage(source: ImageSource.camera);
+    return imagem1;
   }
 
   //função que pega a imagem tirada com a camera
-  Future<XFile?> pegarImagemCamera() async {
+  Future<XFile?> pegarImagemCamera_socorrista() async {
     final ImagePicker _picker = ImagePicker();
-    XFile? imagem = await _picker.pickImage(source: ImageSource.camera);
-    return imagem;
+    XFile? imagem2 = await _picker.pickImage(source: ImageSource.camera);
+    return imagem2;
   }
 
-  Future<void> enviarInfo(String nome, String telefone, XFile? imagem1) async {
+  //função que pega a imagem tirada com a camera
+  Future<XFile?> pegarImagemCamera_docSocorrista() async {
+    final ImagePicker _picker = ImagePicker();
+    XFile? imagem3 = await _picker.pickImage(source: ImageSource.camera);
+    return imagem3;
+  }
+
+  Future<void> enviarInfo(String nome, String telefone, XFile? imagem1, XFile? imagem2, XFile? imagem3) async {
     final dataHora =
-        "${DateTime.timestamp().day}/${DateTime.timestamp().month}/${DateTime.timestamp().year} ${DateTime.timestamp().hour}:${DateTime.timestamp().minute}";
+        "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}";
     final fcm = await FirebaseMessaging.instance.getToken();
     final img1 =
-        "images/img-${DateTime.timestamp().day.toString()}-${DateTime.timestamp().month.toString()}-${DateTime.timestamp()
-          .year.toString()}-${DateTime.timestamp().hour.toString()}:${DateTime.timestamp().minute.toString()}:${DateTime.timestamp()
-            .second.toString()}:${DateTime.timestamp().millisecond.toString()}.jpg";
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
+          .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
+            .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
     try {
       await FirebaseStorage.instance
           .ref()
           .child("/$img1")
           .putFile(File(imagem1!.path));
+    } on FirebaseException catch (e) {
+      throw Exception('Erro: ${e.code}');
+    }
+
+    final img2 =
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
+        .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
+        .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
+    try {
+      await FirebaseStorage.instance
+          .ref()
+          .child("/$img2")
+          .putFile(File(imagem2!.path));
+    } on FirebaseException catch (e) {
+      throw Exception('Erro: ${e.code}');
+    }
+
+    final img3 =
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
+        .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
+        .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
+    try {
+      await FirebaseStorage.instance
+          .ref()
+          .child("/$img3")
+          .putFile(File(imagem3!.path));
     } on FirebaseException catch (e) {
       throw Exception('Erro: ${e.code}');
     }
@@ -561,8 +660,8 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
               'uid': FirebaseAuth.instance.currentUser?.uid,
               'fcmToken': fcm,
               'Foto1': img1,
-              'Foto2': "a",
-              'Foto3': "a",
+              'Foto2': img2,
+              'Foto3': img3,
               'dataHora': dataHora
             })
             .then((value) => print("Dados enviados."))
@@ -656,7 +755,7 @@ class dadosDentista extends StatefulWidget {
 class _dadosDentistaState extends State<dadosDentista> {
 
   List<String> rejeitados = <String>[];
-
+  late final listaDadosDentista x;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -671,16 +770,28 @@ class _dadosDentistaState extends State<dadosDentista> {
             ElevatedButton(
                 onPressed: () async {
 
-                  var x = _dadosDoDentista.removeAt(widget.index);
+                  x = _dadosDoDentista.removeAt(widget.index);
                   _dadosDoDentista.forEach((element) {
                     rejeitados.add(element.nome);
                   });
                   escolherDentista(x, rejeitados);
 
-                  Navigator.popUntil(context, ModalRoute.withName('/MyHomePage'));
+                  //Navigator.popUntil(context, ModalRoute.withName('/MyHomePage'));
 
                 },
                 child: const Text('Aceitar!'),
+            ),
+            ElevatedButton(onPressed: () async {
+
+              if (await Permission.location.request().isGranted){
+
+                final posicao = await Geolocator.getCurrentPosition();
+
+                enviaLocalizacao(posicao.latitude.toString(), posicao.longitude.toString(), x.nome);
+
+              }
+            },
+                child: const Text('Enviar localização'),
             ),
           ],
         ),
@@ -700,6 +811,62 @@ class _dadosDentistaState extends State<dadosDentista> {
             .catchError((error) => print("Erro ao enviar: $error"));
   }
 
+  Future<void> enviaLocalizacao(String lat, String long, String nome) async {
+
+    await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+        .httpsCallable("enviaLocalizacaoSocorrista")
+          .call({
+            'lat': lat,
+            'long': long,
+            'nome': nome,
+          })
+            .then((value) => print(value.data['status']))
+              .catchError((error) => print("Erro ao enviar: $error"));
+  }
+
+}
+
+class Maps extends StatefulWidget {
+  const Maps({super.key, required this.lat, required this.long});
+
+  final double lat;
+  final double long;
+
+  @override
+  State<Maps> createState() => _MapsState();
+}
+
+class _MapsState extends State<Maps> {
+  late GoogleMapController mapController;
+
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  // final LatLng localUsuario = pegarLocalizacao();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Google Maps'),
+      ),
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(widget.lat as double, widget.long as double),
+          zoom: 15,
+        ),
+        markers: {
+           Marker(
+            markerId: MarkerId("source"),
+            position: LatLng(widget.lat as double, widget.long as double),
+          )
+        },
+      ),
+    );
+  }
 }
 
 class listaDadosDentista {
@@ -710,6 +877,14 @@ class listaDadosDentista {
 
     listaDadosDentista({ required this.nome, required this.telefone, required this.cv});
 
+}
+
+pegarLocalizacao() async {
+  Position posicao = await Geolocator.getCurrentPosition();
+  final localizacao = LatLng(
+      posicao.latitude.toDouble(),
+      posicao.longitude.toDouble());
+  return localizacao;
 }
 
 final List<String> _nomesDentista = <String>[];
