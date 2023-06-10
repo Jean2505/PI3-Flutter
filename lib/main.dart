@@ -148,6 +148,7 @@ class MyHomePage extends StatelessWidget {
                         backgroundColor:
                         MaterialStatePropertyAll<Color>(Colors.white)),
                     onPressed: () {
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -173,13 +174,25 @@ class MyHomePage extends StatelessWidget {
 }
 
 class Avaliacao extends StatefulWidget {
-  const Avaliacao({super.key});
+  const Avaliacao({super.key, required this.nome_socorrista, required this.nome_dentista});
+
+  final String nome_socorrista;
+  final String nome_dentista;
 
   @override
   State<Avaliacao> createState() => _AvaliacaoState();
 }
 
 class _AvaliacaoState extends State<Avaliacao> {
+
+  //Controller que pega o texto da área de comentário
+  final myComentarioDentController = TextEditingController();
+  final myComentarioAppController = TextEditingController();
+
+  //Variáveis que salvam a nota dada ao app e ao dentista
+  var myRatingDent = 0.0;
+  var myRatingApp = 0.0;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -204,10 +217,18 @@ class _AvaliacaoState extends State<Avaliacao> {
                     color: Colors.amber,
                   ),
                   onRatingUpdate: (rating) {
+                    myRatingApp = rating;
                     print(rating);
                   },
                 ),
                 TextFormField(
+                  controller: myComentarioAppController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, comente algo';
+                    }
+                    return null;
+                  },
                   decoration: const InputDecoration(labelText: "Comente sua experiência!"),
                 ),
 
@@ -227,13 +248,24 @@ class _AvaliacaoState extends State<Avaliacao> {
                     color: Colors.amber,
                   ),
                   onRatingUpdate: (rating) {
+                    myRatingDent = rating;
                     print(rating);
                   },
                 ),
                 TextFormField(
+                  controller: myComentarioDentController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, comente algo';
+                    }
+                    return null;
+                  },
                   decoration: const InputDecoration(labelText: "Comente sua experiência!"),
                 ),
-                ElevatedButton(onPressed: () {},
+                ElevatedButton(onPressed: () {
+                  print('${myRatingDent}, ${myRatingApp}, ${myComentarioDentController.text}, ${myComentarioAppController.text}');
+                  enviaAvaliacao(widget.nome_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
+                },
                   child: const Text("Enviar"),
                 ),
               ],
@@ -241,6 +273,21 @@ class _AvaliacaoState extends State<Avaliacao> {
         ),
       ),
     );
+  }
+
+  Future<void> enviaAvaliacao(String nomeDent, String nomeSocorrista, double notaDent, double notaApp, String comentarioDent, String comentarioApp) async {
+
+    await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+        .httpsCallable("addAvaliacao")
+          .call({
+            'nomeDentista': nomeDent,
+            'nome': nomeSocorrista,
+            'aval': notaDent,
+            'coment': comentarioDent,
+            'avalApp': notaApp,
+            'comentApp': comentarioApp,
+        }).then((value) => print(value.data['status']))
+            .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
 
@@ -511,11 +558,11 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                         MaterialPageRoute(builder: (context) => Maps(lat: double.parse('${message.data['lat']}'),long: double.parse('${message.data['long']}')))
                                     );
                                   }
-                                  // if(message.data != null){
-                                  //
-                                  //   showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao());
-                                  //
-                                  // }
+                                   if(message.data['text'] == 'finalizada'){
+
+                                     showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, nome_dentista: message.data['nome']));
+
+                                   }
 
                                   print(_nomesDentista);
 
@@ -823,7 +870,6 @@ class _dadosDentistaState extends State<dadosDentista> {
             .then((value) => print(value.data['status']))
               .catchError((error) => print("Erro ao enviar: $error"));
   }
-
 }
 
 class Maps extends StatefulWidget {
