@@ -757,10 +757,12 @@ class _listaDentistasState extends State<listaDentistas> {
          itemCount: _nomesDentista.length,
          itemBuilder: (BuildContext context, int index) {
            return GestureDetector(
-             onTap: () =>
-                 Navigator.push(this.context,
-                   MaterialPageRoute(builder: (context) => dadosDentista(title: _nomesDentista[index], index: index)),
-                 ),
+             onTap: () => Navigator.push(
+               this.context,
+               MaterialPageRoute(
+                 builder: (context) => dadosDentista(title: _nomesDentista[index], index: index),
+               ),
+             ),
              child: Container(
                decoration: BoxDecoration(
                  color: Color(0xff56a2d9),
@@ -771,16 +773,27 @@ class _listaDentistasState extends State<listaDentistas> {
                  borderRadius: BorderRadius.all(Radius.circular(10)),
                ),
                height: 75,
-
-               child: Column(
+               child: Row(
                  children: [
-                   //Icon(Icons.arrow_forward_ios),
-                   Center(
+                   Container(
+                     width: 75,
+                     height: 55,
+                     decoration: BoxDecoration(
+                       shape: BoxShape.circle,
+                       image: DecorationImage(
+                         image: AssetImage('assets/fundo.png'),
+                         fit: BoxFit.cover,
+                       ),
+                     ),
+                   ),
+                   SizedBox(width: 5),
+                   Align(
+                     alignment: Alignment.centerLeft,
                      child: Text(
                        _nomesDentista[index],
                        style: const TextStyle(
-                          fontFamily: 'AvenirNextLTPro-BoldCn',
-                          fontSize: 25,
+                         fontFamily: 'AvenirNextLTPro-BoldCn',
+                         fontSize: 25,
                        ),
                      ),
                    ),
@@ -792,6 +805,9 @@ class _listaDentistasState extends State<listaDentistas> {
          separatorBuilder: (BuildContext context, int index) => const Divider(),
        ),
      );
+
+
+
    }
 }
 
@@ -811,6 +827,7 @@ class _dadosDentistaState extends State<dadosDentista> {
   late final listaDadosDentista x;
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -818,38 +835,158 @@ class _dadosDentistaState extends State<dadosDentista> {
       body: Center(
         child: Column(
           children: [
-            Text(_dadosDoDentista[widget.index].telefone),
-            Text(_dadosDoDentista[widget.index].cv),
-            ElevatedButton(
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: 5,
+                  color: Colors.blue,
+                ),
+                image: DecorationImage(
+                  image: AssetImage('assets/fundo.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              margin: EdgeInsets.only(left: 15),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Telefone',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.all(10),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 3,
+                  color: Colors.blue,
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                _dadosDoDentista[widget.index].telefone,
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              margin: EdgeInsets.only(left: 15),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Curriculo',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.all(10),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 3,
+                  color: Colors.blue,
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                _dadosDoDentista[widget.index].cv,
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: MediaQuery.of(context).size.width / 3, // Ajuste o tamanho do botão aqui
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  width: 2,
+                  color: Colors.amber,
+                ),
+              ),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  onPrimary: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 0), // Ajuste o tamanho do padding aqui
+                ),
                 onPressed: () async {
-
                   x = _dadosDoDentista.removeAt(widget.index);
                   _dadosDoDentista.forEach((element) {
                     rejeitados.add(element.nome);
                   });
                   escolherDentista(x, rejeitados);
-
-                  //Navigator.popUntil(context, ModalRoute.withName('/MyHomePage'));
-
                 },
-                child: const Text('Aceitar!'),
+                child: const Text(
+                  'Aceitar!',
+                  style: TextStyle(fontSize: 20), // Ajuste o tamanho da fonte aqui
+                ),
+              ),
             ),
-            ElevatedButton(onPressed: () async {
-
-              if (await Permission.location.request().isGranted){
-
-                final posicao = await Geolocator.getCurrentPosition();
-
-                enviaLocalizacao(posicao.latitude.toString(), posicao.longitude.toString(), x.nome);
-
-              }
-            },
-                child: const Text('Enviar localização'),
-            ),
+            SizedBox(height: 10),
+              Container(
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.amber,
+                  ),
+                ),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue,
+                    onPrimary: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0),
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (await Permission.location.request().isGranted) {
+                      final posicao = await Geolocator.getCurrentPosition();
+                      enviaLocalizacao(
+                        posicao.latitude.toString(),
+                        posicao.longitude.toString(),
+                        x.nome,
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Enviar localização',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Icon(Icons.location_on), // Ícone de localização
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
-      )
+      ),
     );
+
+
+
   }
 
   Future<void> escolherDentista(listaDadosDentista aceito, List<String> rejeitados) async {
