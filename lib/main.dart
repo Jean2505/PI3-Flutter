@@ -152,15 +152,15 @@ class MyHomePage extends StatelessWidget {
 
                       Navigator.push(
                          context,
-                        MaterialPageRoute(
-                            builder: (context) => const telaFinal(
+                        // MaterialPageRoute(
+                        //     builder: (context) => const telaFinal(
+                        //
+                        //     )),
 
-                            )),
-
-                       //   MaterialPageRoute(
-                       //       builder: (context) => const CadastroEmergencia(
-                       //         title: 'Cadastrar emergência',
-                       //       )),
+                          MaterialPageRoute(
+                              builder: (context) => const CadastroEmergencia(
+                                title: 'Cadastrar emergência',
+                              )),
                        );
                     },
                     child: CircleAvatar(
