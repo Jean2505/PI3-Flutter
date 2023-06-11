@@ -150,13 +150,16 @@ class MyHomePage extends StatelessWidget {
                         MaterialStatePropertyAll<Color>(Colors.white)),
                     onPressed: () {
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CadastroEmergencia(
-                              title: 'Cadastrar emergência',
-                            )),
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const telaFinal())
                       );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       builder: (context) => const CadastroEmergencia(
+                      //         title: 'Cadastrar emergência',
+                      //       )),
+                      // );
                     },
                     child: CircleAvatar(
                       radius: 150,
@@ -270,6 +273,9 @@ class _AvaliacaoState extends State<Avaliacao> {
                 ElevatedButton(onPressed: () {
                   print('${myRatingDent}, ${myRatingApp}, ${myComentarioDentController.text}, ${myComentarioAppController.text}');
                   enviaAvaliacao(widget.uid_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
+                  Navigator.push(this.context,
+                      MaterialPageRoute(builder: (context) => const telaFinal())
+                  );
                 },
                   child: const Text("Enviar"),
                 ),
@@ -918,6 +924,37 @@ class _MapsState extends State<Maps> {
     );
   }
 }
+
+class telaFinal extends StatelessWidget {
+  const telaFinal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Clique no botão para fechar o aplicativo!"),
+
+                ElevatedButton(onPressed: () {
+                  SystemNavigator.pop();
+                  },
+                  child: const Text("Sair"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 class listaDadosDentista {
 
