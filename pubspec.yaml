@@ -96,6 +96,10 @@ flutter:
         - asset: assets/fonts/AvenirNextLTPro-Demi.otf
         - asset: assets/fonts/AvenirNextLTPro-DemiCn.otf
         - asset: assets/fonts/AvenirNextLTPro-Regular.otf
+
+    - family: Chubby
+      fonts:
+        - asset: assets/fonts/Chubby.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

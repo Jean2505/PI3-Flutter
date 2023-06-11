@@ -152,10 +152,15 @@ class MyHomePage extends StatelessWidget {
 
                       Navigator.push(
                          context,
-                         MaterialPageRoute(
-                             builder: (context) => const CadastroEmergencia(
-                               title: 'Cadastrar emergência',
-                             )),
+                        MaterialPageRoute(
+                            builder: (context) => const telaFinal(
+
+                            )),
+
+                       //   MaterialPageRoute(
+                       //       builder: (context) => const CadastroEmergencia(
+                       //         title: 'Cadastrar emergência',
+                       //       )),
                        );
                     },
                     child: CircleAvatar(
@@ -927,24 +932,65 @@ class telaFinal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Clique no botão para fechar o aplicativo!"),
-
-                ElevatedButton(onPressed: () {
-                  SystemNavigator.pop();
-                  },
-                  child: const Text("Sair"),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/fundo.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Emergência",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  color: Color(0xFFFFFFFF),
                 ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 0),
+              Text(
+                "Finalizada",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  color: Color(0xFFFFFFFF),
+                ),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: () {
+                  SystemNavigator.pop();
+                },
+                label: const Icon(
+                  Icons.logout,
+                  size: 30,
+                ),
+                icon:
+                const Text(
+                "Sair",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontFamily: 'AvenirNextLTPro-BoldCn',
+                ),
+              ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.amber,
+                  onPrimary: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(color: Colors.blue, width:0),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
