@@ -201,6 +201,7 @@ class _AvaliacaoState extends State<Avaliacao> {
         padding: const EdgeInsets.all(25),
         child: Form(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   "Avalie o aplicativo",
@@ -234,7 +235,7 @@ class _AvaliacaoState extends State<Avaliacao> {
                   },
                   decoration: const InputDecoration(labelText: "Comente sua experiência!"),
                 ),
-
+                const SizedBox(height: 10),
                 const Text(
                   "Avalie seu dentista",
                   style: TextStyle(fontSize: 20),
@@ -269,12 +270,13 @@ class _AvaliacaoState extends State<Avaliacao> {
                 ),
                 ElevatedButton(onPressed: () {
                   enviaAvaliacao(widget.uid_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
-                  Navigator.push(this.context,
-                      MaterialPageRoute(builder: (context) => const telaFinal())
-                  );
+                   // Navigator.push(this.context,
+                   //     MaterialPageRoute(builder: (context) => const telaFinal())
+                   // );
                 },
                   child: const Text("Enviar"),
                 ),
+                const SizedBox(height: 269),
               ],
             )
         ),
@@ -566,7 +568,11 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                   }
                                    if(message.data['text'] == 'finalizada'){
 
-                                     showModalBottomSheet<dynamic>(context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, uid_dentista: message.data['uid']));
+                                      Navigator.push(this.context,
+                                         MaterialPageRoute(builder: (context) => const telaFinal())
+                                      );
+
+                                     showModalBottomSheet<dynamic>(isScrollControlled: true, context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, uid_dentista: message.data['uid']));
 
                                    }
 
@@ -749,6 +755,7 @@ class _listaDentistasState extends State<listaDentistas> {
    @override
    Widget build(BuildContext context) {
      return Scaffold(
+       resizeToAvoidBottomInset: false,
        appBar: AppBar(
          title: const Text('Lista de dentistas'),
        ),
@@ -829,6 +836,7 @@ class _dadosDentistaState extends State<dadosDentista> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -1064,6 +1072,7 @@ class telaFinal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         width: double.infinity,
         height: double.infinity,
