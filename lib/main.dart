@@ -832,8 +832,14 @@ class _dadosDentistaState extends State<dadosDentista> {
 
   List<String> rejeitados = <String>[];
   late final listaDadosDentista x;
+  late Timer _contaUmMin;
+  final _statesController = MaterialStatesController();
+
+
   @override
   Widget build(BuildContext context) {
+
+    _statesController.update(MaterialState.disabled, true);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -886,7 +892,7 @@ class _dadosDentistaState extends State<dadosDentista> {
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               margin: EdgeInsets.only(left: 15),
               alignment: Alignment.centerLeft,
@@ -914,7 +920,7 @@ class _dadosDentistaState extends State<dadosDentista> {
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               width: MediaQuery.of(context).size.width / 3, // Ajuste o tamanho do botão aqui
               decoration: BoxDecoration(
@@ -932,14 +938,29 @@ class _dadosDentistaState extends State<dadosDentista> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(0),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 0), // Ajuste o tamanho do padding aqui
+                  padding: const EdgeInsets.symmetric(vertical: 0), // Ajuste o tamanho do padding aqui
                 ),
                 onPressed: () async {
-                  x = _dadosDoDentista.removeAt(widget.index);
-                  _dadosDoDentista.forEach((element) {
-                    rejeitados.add(element.nome);
+
+                  //x = _dadosDoDentista.removeAt(widget.index);
+                  dentistaLigou().ligou = true;
+                  _contaUmMin = Timer(Duration(seconds: 10),() {
+
+                    //print("entrou");
+
+                     if(dentistaLigou().ligou == false){
+                       print("falso");
+                     }else{
+                       print("verdadeiro");
+                     }
+
                   });
-                  escolherDentista(x, rejeitados);
+                   x = _dadosDoDentista.removeAt(widget.index);
+                   _dadosDoDentista.forEach((element) {
+                    rejeitados.add(element.nome);
+                   });
+                   escolherDentista(x, rejeitados);
+                   _statesController.update(MaterialState.disabled, false);
                 },
                 child: const Text(
                   'Aceitar!',
@@ -947,7 +968,7 @@ class _dadosDentistaState extends State<dadosDentista> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
               Container(
                 width: 240,
                 decoration: BoxDecoration(
@@ -965,7 +986,9 @@ class _dadosDentistaState extends State<dadosDentista> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0),
                     ),
+                    disabledForegroundColor: Colors.grey,
                   ),
+                  statesController: _statesController,
                   onPressed: () async {
                     if (await Permission.location.request().isGranted) {
                       final posicao = await Geolocator.getCurrentPosition();
@@ -976,7 +999,7 @@ class _dadosDentistaState extends State<dadosDentista> {
                       );
                     }
                   },
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
@@ -1196,3 +1219,9 @@ pegarLocalizacao() async {
 
 final List<String> _nomesDentista = <String>[];
 final List<listaDadosDentista> _dadosDoDentista = <listaDadosDentista>[];
+
+class dentistaLigou {
+
+  late bool ligou = false;
+
+}
