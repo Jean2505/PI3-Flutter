@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -534,7 +535,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                 !loading.value
                                     ? loading.value = !loading.value
                                     : null;
-                                FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+                                FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
                                   print('Got a message whilst in the foreground!');
                                   print('Message data: ${message.data}');
 
@@ -543,9 +544,46 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                       listaDadosDentista auxVar = listaDadosDentista(
                                           telefone: message.data['telefone'],
                                           cv: message.data['cv'],
-                                          nome: message.data['nome']);
+                                          nome: message.data['nome'],
+                                          foto: message.data['foto']);
 
                                       _dadosDoDentista.add(auxVar);
+
+                                      final storageRef = FirebaseStorage.instance.ref();
+
+                                      //final imageURL = await storageRef.child("perfis/img-1686691175690.jpeg").getDownloadURL();
+
+                                      final gsReference =
+                                      await FirebaseStorage.instance.refFromURL(message.data['foto']).getDownloadURL();
+
+                                      print(gsReference.toString());
+
+                                      final appDocDir = await getApplicationDocumentsDirectory();
+                                      final filePath = "${appDocDir.absolute}/${message.data['foto']}";
+                                      final file = File(filePath);
+
+                                      // final downloadTask = gsReference.writeToFile(file);
+                                      // downloadTask.snapshotEvents.listen((taskSnapshot) {
+                                      //   switch (taskSnapshot.state) {
+                                      //     case TaskState.running:
+                                      //     // TODO: Handle this case.
+                                      //       break;
+                                      //     case TaskState.paused:
+                                      //     // TODO: Handle this case.
+                                      //       break;
+                                      //     case TaskState.success:
+                                      //     // TODO: Handle this case.
+                                      //       break;
+                                      //     case TaskState.canceled:
+                                      //     // TODO: Handle this case.
+                                      //       break;
+                                      //     case TaskState.error:
+                                      //     // TODO: Handle this case.
+                                      //       break;
+                                      //   }
+                                      // });
+
+                                      _fotoDentista.add(gsReference);
 
                                       setState(() =>
                                           _nomesDentista.add(
@@ -558,6 +596,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                                   listaDentistas())
                                       );
                                     }
+                                  }
+
+                                  if (message.data['text'] == 'ligacao'){
+
+                                    dentistaLigou = true;
+
                                   }
 
                                   if(message.data['text'] == 'localizacao'){
@@ -765,11 +809,12 @@ class _listaDentistasState extends State<listaDentistas> {
          itemBuilder: (BuildContext context, int index) {
            return GestureDetector(
              onTap: () => Navigator.push(
-               this.context,
-               MaterialPageRoute(
-                 builder: (context) => dadosDentista(title: _nomesDentista[index], index: index),
+                 this.context,
+                 MaterialPageRoute(
+                   builder: (context) => dadosDentista(title: _nomesDentista[index], index: index),
+                 ),
                ),
-             ),
+
              child: Container(
                decoration: BoxDecoration(
                  color: Color(0xff56a2d9),
@@ -788,12 +833,12 @@ class _listaDentistasState extends State<listaDentistas> {
                      decoration: BoxDecoration(
                        shape: BoxShape.circle,
                        image: DecorationImage(
-                         image: AssetImage('assets/fundo.png'),
-                         fit: BoxFit.cover,
+                         image: NetworkImage(_fotoDentista[index]),
+                         fit: BoxFit.scaleDown,
                        ),
                      ),
                    ),
-                   SizedBox(width: 5),
+                   const SizedBox(width: 5),
                    Align(
                      alignment: Alignment.centerLeft,
                      child: Text(
@@ -812,9 +857,6 @@ class _listaDentistasState extends State<listaDentistas> {
          separatorBuilder: (BuildContext context, int index) => const Divider(),
        ),
      );
-
-
-
    }
 }
 
@@ -839,6 +881,12 @@ class _dadosDentistaState extends State<dadosDentista> {
   @override
   Widget build(BuildContext context) {
 
+
+
+    // final appDocDir = await getApplicationDocumentsDirectory();
+    // final filePath = "${appDocDir.absolute}/gs://YOUR_BUCKET/images/stars.jpg";
+    // final file = File(filePath);
+
     _statesController.update(MaterialState.disabled, true);
 
     return Scaffold(
@@ -852,17 +900,7 @@ class _dadosDentistaState extends State<dadosDentista> {
             Container(
               width: 150,
               height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 5,
-                  color: Colors.blue,
-                ),
-                image: DecorationImage(
-                  image: AssetImage('assets/fundo.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+              child: Image.network(_fotoDentista[widget.index]),
             ),
             SizedBox(height: 10),
             Container(
@@ -942,25 +980,30 @@ class _dadosDentistaState extends State<dadosDentista> {
                 ),
                 onPressed: () async {
 
-                  //x = _dadosDoDentista.removeAt(widget.index);
-                  dentistaLigou().ligou = true;
-                  _contaUmMin = Timer(Duration(seconds: 10),() {
+                  final snackBar = SnackBar(content: const Text('O dentista escolhido não realizou uma ligação. Por favor escolha outro dentista.'));
 
-                    //print("entrou");
+                  _contaUmMin = Timer(Duration(seconds: 20),() {
 
-                     if(dentistaLigou().ligou == false){
+                     if(dentistaLigou == false){
+
+                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                        print("falso");
+                       Navigator.pop(context);
+
                      }else{
+
                        print("verdadeiro");
+                       _statesController.update(MaterialState.disabled, false);
+
                      }
 
                   });
                    x = _dadosDoDentista.removeAt(widget.index);
                    _dadosDoDentista.forEach((element) {
-                    rejeitados.add(element.nome);
-                   });
-                   escolherDentista(x, rejeitados);
-                   _statesController.update(MaterialState.disabled, false);
+                      rejeitados.add(element.nome);
+                    });
+                    escolherDentista(x, rejeitados);
+
                 },
                 child: const Text(
                   'Aceitar!',
@@ -1204,8 +1247,9 @@ class listaDadosDentista {
     late String nome;
     late String telefone;
     late String cv;
+    late String foto;
 
-    listaDadosDentista({ required this.nome, required this.telefone, required this.cv});
+    listaDadosDentista({ required this.nome, required this.telefone, required this.cv, required this.foto});
 
 }
 
@@ -1219,9 +1263,10 @@ pegarLocalizacao() async {
 
 final List<String> _nomesDentista = <String>[];
 final List<listaDadosDentista> _dadosDoDentista = <listaDadosDentista>[];
+final List<String> _fotoDentista = <String>[];
 
-class dentistaLigou {
+var dentistaLigou = false;
 
-  late bool ligou = false;
 
-}
+
+
