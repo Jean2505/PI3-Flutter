@@ -42,47 +42,11 @@ void main() async {
   final location = tz.getLocation('America/Sao_Paulo');
   print(location);
   tz.setLocalLocation(location);
-
-  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //   print('Got a message whilst in the foreground!');
-  //   print('Message data: ${message.data.values.elementAt(0)}');
-  //   Navigator.push(this.context,
-  //     MaterialPageRoute(builder: (context) => listaDentistas(nome: '${message.data.values.elementAt(1)}')),
-  //   );
-  //
-  //   if (message.notification != null) {
-  //     print('Message also contained a notification: ${message.notification}');
-  //   }
-  // });
-  runApp( const MyApp(),
+  runApp(
+    const MyApp(),
   );
 }
 
-
-/*class NotificacaoFirebase {
-  Future<void> initialize() async {
-
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    print("aaaaaaaaaaaaa");
-  }
-
-  mensagemNotificacao() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
-
-      if (message.notification != null) {
-        print('Message also contained a notification: ${message.notification}');
-      }
-    });
-  }
-}
-*/
 Future<void> userAuth() async {
   try {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
@@ -120,8 +84,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
-  // final String title;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -131,10 +93,9 @@ class MyHomePage extends StatelessWidget {
             height: double.infinity,
             decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/fundo.png"), fit: BoxFit.cover,
-                )
-            )
-        ),
+              image: AssetImage("assets/fundo.png"),
+              fit: BoxFit.cover,
+            ))),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -148,16 +109,15 @@ class MyHomePage extends StatelessWidget {
                   child: ElevatedButton(
                     style: const ButtonStyle(
                         backgroundColor:
-                        MaterialStatePropertyAll<Color>(Colors.white)),
+                            MaterialStatePropertyAll<Color>(Colors.white)),
                     onPressed: () {
-
                       Navigator.push(
-                         context,
-                           MaterialPageRoute(
-                              builder: (context) => const CadastroEmergencia(
-                                 title: 'Cadastrar emergência',
-                               )),
-                       );
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CadastroEmergencia(
+                                  title: 'Cadastrar emergência',
+                                )),
+                      );
                     },
                     child: CircleAvatar(
                       radius: 150,
@@ -176,7 +136,8 @@ class MyHomePage extends StatelessWidget {
 }
 
 class Avaliacao extends StatefulWidget {
-  const Avaliacao({super.key, required this.nome_socorrista, required this.uid_dentista});
+  const Avaliacao(
+      {super.key, required this.nome_socorrista, required this.uid_dentista});
 
   final String nome_socorrista;
   final String uid_dentista;
@@ -186,7 +147,6 @@ class Avaliacao extends StatefulWidget {
 }
 
 class _AvaliacaoState extends State<Avaliacao> {
-
   //Controller que pega o texto da área de comentário
   final myComentarioDentController = TextEditingController();
   final myComentarioAppController = TextEditingController();
@@ -202,102 +162,129 @@ class _AvaliacaoState extends State<Avaliacao> {
         padding: const EdgeInsets.all(25),
         child: Form(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Avalie o aplicativo",
-                  style: TextStyle(fontSize: 20),
-                ),
-                RatingBar.builder(
-                  initialRating: 0,
-                  minRating: 0,
-                  direction: Axis.horizontal,
-                  allowHalfRating: false,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                  ),
-                  onRatingUpdate: (rating) {
-                    myRatingApp = rating;
-                    print(rating);
-                  },
-                ),
-                TextFormField(
-                  maxLength: 280,
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  controller: myComentarioAppController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, comente algo';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(labelText: "Comente sua experiência!"),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Avalie seu dentista",
-                  style: TextStyle(fontSize: 20),
-                ),
-                RatingBar.builder(
-                  initialRating: 0,
-                  minRating: 0,
-                  direction: Axis.horizontal,
-                  allowHalfRating: false,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                  ),
-                  onRatingUpdate: (rating) {
-                    myRatingDent = rating;
-                    print(rating);
-                  },
-                ),
-                TextFormField(
-                  maxLength: 280,
-                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                  controller: myComentarioDentController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, comente algo';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(labelText: "Comente sua experiência!"),
-                ),
-                ElevatedButton(onPressed: () {
-                  enviaAvaliacao(widget.uid_dentista, widget.nome_socorrista, myRatingDent, myRatingApp, myComentarioDentController.text, myComentarioAppController.text);
-                   // Navigator.push(this.context,
-                   //     MaterialPageRoute(builder: (context) => const telaFinal())
-                   // );
-                },
-                  child: const Text("Enviar"),
-                ),
-                const SizedBox(height: 269),
-              ],
-            )
-        ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Avalie o aplicativo",
+              style: TextStyle(fontSize: 20),
+            ),
+
+            // Este é o construtor do RatingBar usado no modal de avaliação.
+            RatingBar.builder(
+              initialRating: 0,
+              minRating: 0,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+
+              // Cada vez que uma estrela é clicada, ocorre um update e a cada update a rating nova é guardada.
+              onRatingUpdate: (rating) {
+                myRatingApp = rating;
+                print(rating);
+              },
+            ),
+            TextFormField(
+              maxLength: 280,
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+              controller: myComentarioAppController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, comente algo';
+                }
+                return null;
+              },
+              decoration:
+                  const InputDecoration(labelText: "Comente sua experiência!"),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Avalie seu dentista",
+              style: TextStyle(fontSize: 20),
+            ),
+            RatingBar.builder(
+              initialRating: 0,
+              minRating: 0,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                myRatingDent = rating;
+                print(rating);
+              },
+            ),
+            TextFormField(
+              maxLength: 280,
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+              controller: myComentarioDentController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, comente algo';
+                }
+                return null;
+              },
+              decoration:
+                  const InputDecoration(labelText: "Comente sua experiência!"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text(
+                        'Avaliações enviadas. Obrigado por usar o app!')));
+
+                // Quando o botão é pressionado, envia os cometários e as notas para o banco de dados.
+                enviaAvaliacao(
+                    widget.uid_dentista,
+                    widget.nome_socorrista,
+                    myRatingDent,
+                    myRatingApp,
+                    myComentarioDentController.text,
+                    myComentarioAppController.text);
+                // Navigator.push(this.context,
+                //     MaterialPageRoute(builder: (context) => const telaFinal())
+                // );
+
+                // Fecha o modal.
+                Navigator.pop(context);
+              },
+              child: const Text("Enviar"),
+            ),
+            const SizedBox(height: 269),
+          ],
+        )),
       ),
     );
   }
 
-  Future<void> enviaAvaliacao(String uidDent, String nomeSocorrista, double notaDent, double notaApp, String comentarioDent, String comentarioApp) async {
-
+  // Função que envia a avaliação do app e do dentista para o banco utilizando a function addAvaliacao.
+  Future<void> enviaAvaliacao(
+      String uidDent,
+      String nomeSocorrista,
+      double notaDent,
+      double notaApp,
+      String comentarioDent,
+      String comentarioApp) async {
     await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
         .httpsCallable("addAvaliacao")
-          .call({
-            'uidDentista': uidDent,
-            'nome': nomeSocorrista,
-            'aval': notaDent,
-            'coment': comentarioDent,
-            'avalApp': notaApp,
-            'comentApp': comentarioApp,
-        }).then((value) => print(value.data['status']))
-            .catchError((error) => print("Erro ao enviar: $error"));
+        .call({
+          'uidDentista': uidDent,
+          'nome': nomeSocorrista,
+          'aval': notaDent,
+          'coment': comentarioDent,
+          'avalApp': notaApp,
+          'comentApp': comentarioApp,
+        })
+        .then((value) => print(value.data['status']))
+        .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
 
@@ -311,23 +298,16 @@ class CadastroEmergencia extends StatefulWidget {
 }
 
 class _CadastroEmergenciaState extends State<CadastroEmergencia> {
-  /*void initState() {
-    super.initState();
-    initializeFirebaseMessaging();
-  }*/
-
-  /*initializeFirebaseMessaging() async {
-    await Provider.of<NotificacaoFirebase>(BuildContext as BuildContext,
-            listen: true)
-        .initialize();
-  }*/
-
+  // referência do loading utilizado quando está aguardando um dentista aceitar a emergência.
   final loading = ValueNotifier<bool>(false);
+
+  // referência do ImagePicker.
   ImagePicker imagePicker = ImagePicker();
+
+  // variáveis que guardam as fotos tiradas.
   XFile? imagem1;
   XFile? imagem2;
   XFile? imagem3;
-  File? imagemSelecionada;
 
   //referencia para a coleção no banco
   CollectionReference emergencias =
@@ -339,6 +319,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   final _formNomeKey = GlobalKey<FormState>();
   final _formTelefoneKey = GlobalKey<FormState>();
 
+  //referência para cores
   final colorAzulEscuro = const Color(0xff064066);
   final colorAzulClaro = const Color(0xff56a2d9);
   final colorAzulCinza = const Color(0xff91b5cf);
@@ -353,16 +334,12 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
       ),
       body: Stack(
         children: [
-          Center (
-            child: Padding (
+          Center(
+            child: Padding(
               padding: const EdgeInsets.only(top: 0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  // Caso futuramente temos que fazer a foto aparecer na tela
-                  // imagemSelecionada == null
-                  //     ? Container()
-                  //     : Image.file(imagemSelecionada!),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                     child: Column(
@@ -388,6 +365,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                       children: [
                         TextFormField(
                           controller: myNomeController,
+                          // O validator verifica se o campo está vazio e evita que a emergência seja criada caso o valor seja null
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Informe um nome';
@@ -396,14 +374,14 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                           },
                           decoration: const InputDecoration(
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff56a2d9))
-                            ),
+                                borderSide:
+                                    BorderSide(color: Color(0xff56a2d9))),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff56a2d9))
-                            ),
+                                borderSide:
+                                    BorderSide(color: Color(0xff56a2d9))),
                             prefixIcon: Icon(
-                                Icons.account_circle_sharp,
-                                color: Color(0xff56a2d9),
+                              Icons.account_circle_sharp,
+                              color: Color(0xff56a2d9),
                             ),
                             labelText: 'Digite seu nome',
                           ),
@@ -413,8 +391,8 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                   ),
                   Padding(
                     key: _formTelefoneKey,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -428,14 +406,15 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                           },
                           decoration: const InputDecoration(
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff56a2d9))
-                            ),
+                                borderSide:
+                                    BorderSide(color: Color(0xff56a2d9))),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff56a2d9))
-                            ),
+                                borderSide:
+                                    BorderSide(color: Color(0xff56a2d9))),
                             prefixIcon: Icon(
-                                Icons.phone,
-                                color: Color(0xff56a2d9),),
+                              Icons.phone,
+                              color: Color(0xff56a2d9),
+                            ),
                             labelText: 'Digite seu número de celular',
                           ),
                         ),
@@ -461,69 +440,77 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                         children: [
                           ElevatedButton.icon(
                             icon: const Icon(Icons.camera_alt_outlined,
-                            color: Colors.white
-                            ),
+                                color: Colors.white),
                             onPressed: () async {
                               imagem1 = await pegarImagemCamera_lesao();
+                              // Esse snackbar espera a foto ser salva na variável para avisar o usuário.
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          const Text('Foto da lesão salva.')));
                             },
                             style: ElevatedButton.styleFrom(
-                              minimumSize: Size(230,45),
+                              minimumSize: Size(230, 45),
                               primary: Color(0xff56a2d9),
                             ),
-                            label: const Text('Foto da lesão',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'AvenirNextLTPro-BoldCn',
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                              width: 5,
-                            height: 40,
-                          ),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.camera_alt_outlined,
-                                color: Colors.white
-                            ),
-                            onPressed: () async {
-                              imagem2 = await pegarImagemCamera_socorrista();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(230,45),
-                              primary: Color(0xff56a2d9),
-                            ),
-                            label: const Text('Foto do socorrista',
+                            label: const Text(
+                              'Foto da lesão',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'AvenirNextLTPro-BoldCn',
                               ),
                             ),
-
+                          ),
+                          const SizedBox(
+                            width: 5,
+                            height: 40,
+                          ),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.camera_alt_outlined,
+                                color: Colors.white),
+                            onPressed: () async {
+                              imagem2 = await pegarImagemCamera_socorrista();
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: const Text(
+                                      'Foto com criança acidentada salva.')));
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(230, 45),
+                              primary: Color(0xff56a2d9),
+                            ),
+                            label: const Text(
+                              'Foto com criança',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'AvenirNextLTPro-BoldCn',
+                              ),
+                            ),
                           ),
                           SizedBox(
                             width: 5,
                             height: 40,
                           ),
-
                           ElevatedButton.icon(
                             icon: const Icon(Icons.camera_alt_outlined,
-                                color: Colors.white
-                            ),
+                                color: Colors.white),
                             onPressed: () async {
                               imagem3 = await pegarImagemCamera_docSocorrista();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: const Text(
+                                          'Foto do documento salva.')));
                             },
                             style: ElevatedButton.styleFrom(
-                              minimumSize: Size(230,45),
+                              minimumSize: Size(230, 45),
                               primary: Color(0xff56a2d9),
                             ),
-                            label: const Text('Foto do documento',
+                            label: const Text(
+                              'Foto do documento',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'AvenirNextLTPro-BoldCn',
                               ),
                             ),
-
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 80),
@@ -537,103 +524,122 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                 primary: Color(0xffffd803),
                               ),
                               onPressed: () {
-                                enviarInfo(myNomeController.text,
-                                    myTelefoneController.text, imagem1, imagem2, imagem3);
+                                // Quando o botão é pressionado envia para o banco de dados essas informações.
+                                enviarInfo(
+                                    myNomeController.text,
+                                    myTelefoneController.text,
+                                    imagem1,
+                                    imagem2,
+                                    imagem3);
+                                // Quando as informações forem enviadas, o botão de enviar mudará para um modo de loading
+                                // enquanto um dentista não aceita a emergência
                                 !loading.value
                                     ? loading.value = !loading.value
                                     : null;
-                                FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-                                  print('Got a message whilst in the foreground!');
+                                // Listener do FirebaseMessaging que fica "escutando" as mensagens
+                                // e executa ações baseado no 'text' delas.
+                                FirebaseMessaging.onMessage
+                                    .listen((RemoteMessage message) async {
+                                  print(
+                                      'Got a message whilst in the foreground!');
                                   print('Message data: ${message.data}');
 
-                                  if(message.data['text'] == 'aceita') {
+                                  if (message.data['text'] == 'aceita') {
                                     if (_nomesDentista.length < 5) {
-                                      listaDadosDentista auxVar = listaDadosDentista(
-                                          telefone: message.data['telefone'],
-                                          cv: message.data['cv'],
-                                          nome: message.data['nome'],
-                                          foto: message.data['foto']);
+                                      // Quando uma emergência é aceita, certos dados da mensagem são guardadas
+                                      // na numa variável do tipo listaDadosDentista.
+                                      listaDadosDentista auxVar =
+                                          listaDadosDentista(
+                                              telefone:
+                                                  message.data['telefone'],
+                                              cv: message.data['cv'],
+                                              nome: message.data['nome'],
+                                              foto: message.data['foto']);
 
+                                      // Depois de guardada na variável, os dados do dentista são salvos numa lista.
                                       _dadosDoDentista.add(auxVar);
 
-                                      final storageRef = FirebaseStorage.instance.ref();
+                                      final storageRef =
+                                          FirebaseStorage.instance.ref();
 
-                                      //final imageURL = await storageRef.child("perfis/img-1686691175690.jpeg").getDownloadURL();
-
-                                      final gsReference =
-                                      await FirebaseStorage.instance.refFromURL(message.data['foto']).getDownloadURL();
+                                      // Referência para o Storage.
+                                      final gsReference = await FirebaseStorage
+                                          .instance
+                                          .refFromURL(message.data['foto'])
+                                          .getDownloadURL();
 
                                       print(gsReference.toString());
 
-                                      final appDocDir = await getApplicationDocumentsDirectory();
-                                      final filePath = "${appDocDir.absolute}/${message.data['foto']}";
+                                      final appDocDir =
+                                          await getApplicationDocumentsDirectory();
+                                      final filePath =
+                                          "${appDocDir.absolute}/${message.data['foto']}";
                                       final file = File(filePath);
 
-                                      // final downloadTask = gsReference.writeToFile(file);
-                                      // downloadTask.snapshotEvents.listen((taskSnapshot) {
-                                      //   switch (taskSnapshot.state) {
-                                      //     case TaskState.running:
-                                      //     // TODO: Handle this case.
-                                      //       break;
-                                      //     case TaskState.paused:
-                                      //     // TODO: Handle this case.
-                                      //       break;
-                                      //     case TaskState.success:
-                                      //     // TODO: Handle this case.
-                                      //       break;
-                                      //     case TaskState.canceled:
-                                      //     // TODO: Handle this case.
-                                      //       break;
-                                      //     case TaskState.error:
-                                      //     // TODO: Handle this case.
-                                      //       break;
-                                      //   }
-                                      // });
-
+                                      // Guarda o URL da foto do dentista que aceitou a emergência numa lista.
                                       _fotoDentista.add(gsReference);
 
-                                      setState(() =>
-                                          _nomesDentista.add(
-                                              message.data['nome']));
+                                      // setState que atualiza a widget de lista de dentistas que aceitaram
+                                      setState(() => _nomesDentista
+                                          .add(message.data['nome']));
                                     }
+
+                                    // Cria uma "rota" para a próxima widget quando há 1 item
+                                    // na lista de nomes dos dentista que aceitaram
                                     if (_nomesDentista.length == 1) {
-                                      Navigator.push(this.context,
+                                      Navigator.push(
+                                          this.context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  listaDentistas())
-                                      );
+                                                  listaDentistas()));
                                     }
                                   }
 
-                                  if (message.data['text'] == 'ligacao'){
-
+                                  // Muda dentistaLigou para true quando o socorrista recebe uma ligação
+                                  if (message.data['text'] == 'ligacao') {
                                     dentistaLigou = true;
-
                                   }
 
-                                  if(message.data['text'] == 'localizacao'){
-
-                                    Navigator.push(this.context,
-                                        MaterialPageRoute(builder: (context) => Maps(lat: double.parse('${message.data['lat']}'),long: double.parse('${message.data['long']}')))
-                                    );
+                                  // Envia para a tela do Maps, mostrando a localização do dentista
+                                  if (message.data['text'] == 'localizacao') {
+                                    Navigator.push(
+                                        this.context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Maps(
+                                                lat: double.parse(
+                                                    '${message.data['lat']}'),
+                                                long: double.parse(
+                                                    '${message.data['long']}'))));
                                   }
-                                   if(message.data['text'] == 'finalizada'){
 
-                                      Navigator.push(this.context,
-                                         MaterialPageRoute(builder: (context) => const telaFinal())
-                                      );
+                                  // Quando o dentista finaliza a emergência, o socorrista é enviado
+                                  // para a tela final e o modal de avaliação é aberto
+                                  if (message.data['text'] == 'finalizada') {
+                                    Navigator.push(
+                                        this.context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const telaFinal()));
 
-                                     showModalBottomSheet<dynamic>(isScrollControlled: true, context: context, builder: (context) => Avaliacao(nome_socorrista: myNomeController.text, uid_dentista: message.data['uid']));
-
-                                   }
+                                    showModalBottomSheet<dynamic>(
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) => Avaliacao(
+                                            nome_socorrista:
+                                                myNomeController.text,
+                                            uid_dentista: message.data['uid']));
+                                  }
 
                                   print(_nomesDentista);
 
                                   if (message.notification != null) {
-                                    print('Message also contained a notification: ${message.notification}');
+                                    print(
+                                        'Message also contained a notification: ${message.notification}');
                                   }
                                 });
                               },
+
+                              // Builder da animação de loading
                               child: AnimatedBuilder(
                                   animation: loading,
                                   builder: (context, _) {
@@ -645,17 +651,18 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                                 height: 20,
                                                 child:
                                                     CircularProgressIndicator(
-                                                      color: Color(0xff56a2d9),
-                                                    ),
+                                                  color: Color(0xff56a2d9),
+                                                ),
                                               ),
                                               Padding(
                                                 padding:
                                                     EdgeInsets.only(left: 20),
                                                 child: Text(
                                                   'Procurando dentistas',
-                                                  style:
-                                                      TextStyle(fontSize: 20,
-                                                      color: Color(0xff56a2d9),),
+                                                  style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: Color(0xff56a2d9),
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -664,8 +671,9 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                                             padding: EdgeInsets.all(5),
                                             child: Text(
                                               'Solicitar emergência',
-                                              style: TextStyle(fontSize: 20,
-                                              color: Color(0xff56a2d9)),
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Color(0xff56a2d9)),
                                             ),
                                           );
                                   }),
@@ -683,19 +691,6 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
       ),
     );
   }
-
-  // //função que pega imagem da galeria
-  // Future<XFile?> pegarImagemGaleria() async {
-  //   final ImagePicker _picker = ImagePicker();
-  //   XFile? imagem = await _picker.pickImage(source: ImageSource.gallery);
-  //
-  //   if (imagem != null) {
-  //     setState(() {
-  //       imagemSelecionada = File(imagem.path);
-  //     });
-  //   }
-  //   return imagem;
-  // } LEMBRAR DE APAGAR DEPOIS
 
   //função que pega a imagem tirada com a camera
   Future<XFile?> pegarImagemCamera_lesao() async {
@@ -718,14 +713,14 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     return imagem3;
   }
 
-  Future<void> enviarInfo(String nome, String telefone, XFile? imagem1, XFile? imagem2, XFile? imagem3) async {
+  // Função que envia os dados e fotos do socorrista para o banco
+  Future<void> enviarInfo(String nome, String telefone, XFile? imagem1,
+      XFile? imagem2, XFile? imagem3) async {
     final dataHora =
         "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute}";
     final fcm = await FirebaseMessaging.instance.getToken();
     final img1 =
-        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
-          .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
-            .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now().year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now().second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
     try {
       await FirebaseStorage.instance
           .ref()
@@ -736,9 +731,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     }
 
     final img2 =
-        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
-        .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
-        .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now().year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now().second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
     try {
       await FirebaseStorage.instance
           .ref()
@@ -749,9 +742,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
     }
 
     final img3 =
-        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now()
-        .year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now()
-        .second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
+        "images/img-${DateTime.now().day.toString()}-${DateTime.now().month.toString()}-${DateTime.now().year.toString()}-${DateTime.now().hour.toString()}:${DateTime.now().minute.toString()}:${DateTime.now().second.toString()}:${DateTime.now().millisecond.toString()}.jpg";
     try {
       await FirebaseStorage.instance
           .ref()
@@ -779,94 +770,99 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
   }
 }
 
+// Widget da lista de dentistas que aceitaram a emergência.
 class listaDentistas extends StatefulWidget {
-    const listaDentistas({super.key});
+  const listaDentistas({super.key});
 
-   @override
-   _listaDentistasState createState() => _listaDentistasState();
+  @override
+  _listaDentistasState createState() => _listaDentistasState();
 }
 
 class _listaDentistasState extends State<listaDentistas> {
+  final List<int> colorCodes = <int>[600, 500, 100, 100, 100, 100];
 
-    final List<int> colorCodes = <int>[600, 500, 100, 100, 100, 100];
-    late Timer _everySecond;
+  late Timer _everySecond;
 
-    @override
-    void initState() {
-      super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-        _everySecond = Timer.periodic(Duration(seconds: 5), (Timer t) {
-          if(_nomesDentista.length != 5) {
-            setState(() {});
+    // este timer "atualiza" a widget periodicamente para receber
+    // novos dentistas que aceitaram.
+    _everySecond = Timer.periodic(Duration(seconds: 5), (Timer t) {
+      if (_nomesDentista.length != 5) {
+        setState(() {});
+      }
+    });
+  }
 
-          }
-        });
-    }
-
-   @override
-   Widget build(BuildContext context) {
-     return Scaffold(
-       resizeToAvoidBottomInset: false,
-       appBar: AppBar(
-         title: const Text('Lista de dentistas'),
-       ),
-       body: ListView.separated(
-         padding: const EdgeInsets.all(8),
-         itemCount: _nomesDentista.length,
-         itemBuilder: (BuildContext context, int index) {
-           return GestureDetector(
-             onTap: () => Navigator.push(
-                 this.context,
-                 MaterialPageRoute(
-                   builder: (context) => dadosDentista(title: _nomesDentista[index], index: index),
-                 ),
-               ),
-
-             child: Container(
-               decoration: BoxDecoration(
-                 color: Color(0xff56a2d9),
-                 border: Border.all(
-                   width: 5,
-                   color: Color(0xff064066),
-                 ),
-                 borderRadius: BorderRadius.all(Radius.circular(10)),
-               ),
-               height: 75,
-               child: Row(
-                 children: [
-                   Container(
-                     width: 75,
-                     height: 55,
-                     decoration: BoxDecoration(
-                       shape: BoxShape.circle,
-                       image: DecorationImage(
-                         image: NetworkImage(_fotoDentista[index]),
-                         fit: BoxFit.scaleDown,
-                       ),
-                     ),
-                   ),
-                   const SizedBox(width: 5),
-                   Align(
-                     alignment: Alignment.centerLeft,
-                     child: Text(
-                       _nomesDentista[index],
-                       style: const TextStyle(
-                         fontFamily: 'AvenirNextLTPro-BoldCn',
-                         fontSize: 25,
-                       ),
-                     ),
-                   ),
-                 ],
-               ),
-             ),
-           );
-         },
-         separatorBuilder: (BuildContext context, int index) => const Divider(),
-       ),
-     );
-   }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: const Text('Lista de dentistas'),
+      ),
+      // ListView que mostra os dentistas
+      body: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: _nomesDentista.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            // Quando clica em um tile da lista, abre o widget de dados do dentista selecionado.
+            onTap: () => Navigator.push(
+              this.context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    dadosDentista(title: _nomesDentista[index], index: index),
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xff56a2d9),
+                border: Border.all(
+                  width: 5,
+                  color: Color(0xff064066),
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              height: 75,
+              child: Row(
+                children: [
+                  Container(
+                    width: 75,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: NetworkImage(_fotoDentista[index]),
+                        fit: BoxFit.scaleDown,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      _nomesDentista[index],
+                      style: const TextStyle(
+                        fontFamily: 'AvenirNextLTPro-BoldCn',
+                        fontSize: 25,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      ),
+    );
+  }
 }
 
+// Widget de dados do dentista.
 class dadosDentista extends StatefulWidget {
   const dadosDentista({super.key, required this.title, required this.index});
 
@@ -878,22 +874,13 @@ class dadosDentista extends StatefulWidget {
 }
 
 class _dadosDentistaState extends State<dadosDentista> {
-
   List<String> rejeitados = <String>[];
   late final listaDadosDentista x;
   late Timer _contaUmMin;
   final _statesController = MaterialStatesController();
 
-
   @override
   Widget build(BuildContext context) {
-
-
-
-    // final appDocDir = await getApplicationDocumentsDirectory();
-    // final filePath = "${appDocDir.absolute}/gs://YOUR_BUCKET/images/stars.jpg";
-    // final file = File(filePath);
-
     _statesController.update(MaterialState.disabled, true);
 
     return Scaffold(
@@ -914,7 +901,8 @@ class _dadosDentistaState extends State<dadosDentista> {
                     width: 3,
                   ),
                 ),
-                child: Image.network(_fotoDentista[widget.index],
+                child: Image.network(
+                  _fotoDentista[widget.index],
                   //fit: BoxFit.fill,
                 ),
               ),
@@ -977,7 +965,8 @@ class _dadosDentistaState extends State<dadosDentista> {
             ),
             const SizedBox(height: 10),
             Container(
-              width: MediaQuery.of(context).size.width / 3, // Ajuste o tamanho do botão aqui
+              width: MediaQuery.of(context).size.width /
+                  3, // Ajuste o tamanho do botão aqui
               decoration: BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(5),
@@ -993,116 +982,128 @@ class _dadosDentistaState extends State<dadosDentista> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(0),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 0), // Ajuste o tamanho do padding aqui
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 0), // Ajuste o tamanho do padding aqui
                 ),
                 onPressed: () async {
+                  final snackBar = SnackBar(
+                      content: const Text(
+                          'O dentista escolhido não realizou uma ligação. Por favor escolha outro dentista.'));
 
-                  final snackBar = SnackBar(content: const Text('O dentista escolhido não realizou uma ligação. Por favor escolha outro dentista.'));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content:
+                          Text('Dentista aceito. Aguarde contato.')));
 
-                  _contaUmMin = Timer(Duration(seconds: 20),() {
-
-                     if(dentistaLigou == false){
-
-                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                       print("falso");
-                       Navigator.pop(context);
-
-                     }else{
-
-                       print("verdadeiro");
-                       _statesController.update(MaterialState.disabled, false);
-
-                     }
-
+                  _contaUmMin = Timer(Duration(seconds: 60), () {
+                    if (dentistaLigou == false) {
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      print("falso");
+                      Navigator.pop(context);
+                    } else {
+                      print("verdadeiro");
+                      _statesController.update(MaterialState.disabled, false);
+                    }
                   });
-                   x = _dadosDoDentista.removeAt(widget.index);
-                   _dadosDoDentista.forEach((element) {
-                      rejeitados.add(element.nome);
-                    });
-                    escolherDentista(x, rejeitados);
 
+                  x = _dadosDoDentista.removeAt(widget.index);
+                  _dadosDoDentista.forEach((element) {
+                    rejeitados.add(element.nome);
+                  });
+                  escolherDentista(x, rejeitados);
+                  rejeitarDentista(rejeitados);
                 },
                 child: const Text(
                   'Aceitar!',
-                  style: TextStyle(fontSize: 20), // Ajuste o tamanho da fonte aqui
+                  style:
+                      TextStyle(fontSize: 20), // Ajuste o tamanho da fonte aqui
                 ),
               ),
             ),
             const SizedBox(height: 10),
-              Container(
-                width: 280,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    width: 2,
-                    color: Colors.amber,
-                  ),
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blue,
-                    onPrimary: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    disabledForegroundColor: Colors.grey,
-                  ),
-                  statesController: _statesController,
-                  onPressed: () async {
-                    if (await Permission.location.request().isGranted) {
-                      final posicao = await Geolocator.getCurrentPosition();
-                      enviaLocalizacao(
-                        posicao.latitude.toString(),
-                        posicao.longitude.toString(),
-                        x.nome,
-                      );
-                    }
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Enviar localização',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      Icon(Icons.location_on), // Ícone de localização
-                    ],
-                  ),
+            Container(
+              width: 280,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  width: 2,
+                  color: Colors.amber,
                 ),
               ),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  onPrimary: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  disabledForegroundColor: Colors.grey,
+                ),
+                statesController: _statesController,
+                onPressed: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text('Localização enviada ao dentista.')));
+
+                  if (await Permission.location.request().isGranted) {
+                    final posicao = await Geolocator.getCurrentPosition();
+                    enviaLocalizacao(
+                      posicao.latitude.toString(),
+                      posicao.longitude.toString(),
+                      x.nome,
+                    );
+                  }
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Enviar localização',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Icon(Icons.location_on), // Ícone de localização
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
-
-
-
   }
 
-  Future<void> escolherDentista(listaDadosDentista aceito, List<String> rejeitados) async {
-
+  Future<void> escolherDentista(
+      listaDadosDentista aceito, List<String> rejeitados) async {
     await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
         .httpsCallable("escolheDentista")
-          .call({
-            'rej': rejeitados,
-            'escolhido': aceito.nome,
-          })
-          .then((value) => print(value.data['status']))
-            .catchError((error) => print("Erro ao enviar: $error"));
+        .call({
+          //'rej': rejeitados,
+          'escolhido': aceito.nome,
+        })
+        .then((value) => print(value.data['status']))
+        .catchError((error) => print("Erro ao enviar: $error"));
+  }
+
+  Future<void> rejeitarDentista(List<String> rejeitados) async {
+    await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+        .httpsCallable("rejeitaDentista")
+        .call({
+          'rej': rejeitados,
+          //'escolhido': aceito.nome,
+        })
+        .then((value) => print(value.data['status']))
+        .catchError((error) => print("Erro ao enviar: $error"));
   }
 
   Future<void> enviaLocalizacao(String lat, String long, String nome) async {
-
     await FirebaseFunctions.instanceFor(region: 'southamerica-east1')
         .httpsCallable("enviaLocalizacaoSocorrista")
-          .call({
-            'lat': lat,
-            'long': long,
-            'nome': nome,
-          })
-            .then((value) => print(value.data['status']))
-              .catchError((error) => print("Erro ao enviar: $error"));
+        .call({
+          'lat': lat,
+          'long': long,
+          'nome': nome,
+        })
+        .then((value) => print(value.data['status']))
+        .catchError((error) => print("Erro ao enviar: $error"));
   }
 }
 
@@ -1118,7 +1119,6 @@ class Maps extends StatefulWidget {
 
 class _MapsState extends State<Maps> {
   late GoogleMapController mapController;
-
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -1139,7 +1139,7 @@ class _MapsState extends State<Maps> {
           zoom: 15,
         ),
         markers: {
-           Marker(
+          Marker(
             markerId: MarkerId("source"),
             position: LatLng(widget.lat as double, widget.long as double),
           )
@@ -1166,115 +1166,112 @@ class telaFinal extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Stack(
+            child: Stack(children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                 Text(
-                  "Emergência",
+              Text(
+                "Emergência",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  fontWeight: FontWeight.bold,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 3
+                    ..color = Colors.amber,
+                  //color: Color(0xFFFFFFFF),
+                ),
+              ),
+              const SizedBox(height: 0),
+              Text(
+                "Finalizada",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  fontWeight: FontWeight.bold,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 3
+                    ..color = Colors.amber,
+                  //color: Color(0xFFFFFFFF),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: () {
+                  SystemNavigator.pop();
+                },
+                label: const Icon(
+                  Icons.logout,
+                  size: 30,
+                ),
+                icon: const Text(
+                  "Sair",
                   style: TextStyle(
-                    fontSize: 55,
-                    fontFamily: 'Chubby',
-                    fontWeight: FontWeight.bold,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 3
-                      ..color = Colors.amber,
-                    //color: Color(0xFFFFFFFF),
+                    fontSize: 30,
+                    fontFamily: 'AvenirNextLTPro-BoldCn',
                   ),
                 ),
-                const SizedBox(height: 0),
-                 Text(
-                  "Finalizada",
-                  style: TextStyle(
-                    fontSize: 55,
-                    fontFamily: 'Chubby',
-                    fontWeight: FontWeight.bold,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 3
-                        ..color = Colors.amber,
-                    //color: Color(0xFFFFFFFF),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.amber,
+                  onPrimary: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(color: Colors.blue, width: 0),
                   ),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    SystemNavigator.pop();
-                  },
-                  label: const Icon(
-                    Icons.logout,
-                    size: 30,
-                  ),
-                  icon:
-                  const Text(
-                    "Sair",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontFamily: 'AvenirNextLTPro-BoldCn',
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.amber,
-                    onPrimary: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(color: Colors.blue, width:0),
-                    ),
-                  ),
+              ),
+            ],
+          ),
+          const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Emergência",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  color: Colors.white,
                 ),
-              ],
-            ),
-              const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                  "Emergência",
-                  style: TextStyle(
-                    fontSize: 55,
-                    fontFamily: 'Chubby',
-                    color: Colors.white,
-                   ),
-                  ),
-                  SizedBox(height: 0),
-                  Text(
-                  "Finalizada",
-                  style: TextStyle(
-                    fontSize: 55,
-                    fontFamily: 'Chubby',
-                    color: Color(0xFFFFFFFF),
-                   ),
-                  ),
-                  const SizedBox(height: 63),
-                ],
-              )
-            ]
+              ),
+              SizedBox(height: 0),
+              Text(
+                "Finalizada",
+                style: TextStyle(
+                  fontSize: 55,
+                  fontFamily: 'Chubby',
+                  color: Color(0xFFFFFFFF),
+                ),
+              ),
+              const SizedBox(height: 63),
+            ],
           )
-        ),
+        ])),
       ),
     );
   }
 }
 
-
 class listaDadosDentista {
+  late String nome;
+  late String telefone;
+  late String cv;
+  late String foto;
 
-    late String nome;
-    late String telefone;
-    late String cv;
-    late String foto;
-
-    listaDadosDentista({ required this.nome, required this.telefone, required this.cv, required this.foto});
-
+  listaDadosDentista(
+      {required this.nome,
+      required this.telefone,
+      required this.cv,
+      required this.foto});
 }
 
 pegarLocalizacao() async {
   Position posicao = await Geolocator.getCurrentPosition();
-  final localizacao = LatLng(
-      posicao.latitude.toDouble(),
-      posicao.longitude.toDouble());
+  final localizacao =
+      LatLng(posicao.latitude.toDouble(), posicao.longitude.toDouble());
   return localizacao;
 }
 
@@ -1283,7 +1280,3 @@ final List<listaDadosDentista> _dadosDoDentista = <listaDadosDentista>[];
 final List<String> _fotoDentista = <String>[];
 
 var dentistaLigou = false;
-
-
-
-
