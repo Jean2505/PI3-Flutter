@@ -467,7 +467,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                               imagem1 = await pegarImagemCamera_lesao();
                             },
                             style: ElevatedButton.styleFrom(
-                              minimumSize: Size(140,45),
+                              minimumSize: Size(230,45),
                               primary: Color(0xff56a2d9),
                             ),
                             label: const Text('Foto da lesão',
@@ -478,7 +478,10 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             ),
 
                           ),
-
+                          SizedBox(
+                              width: 5,
+                            height: 40,
+                          ),
                           ElevatedButton.icon(
                             icon: const Icon(Icons.camera_alt_outlined,
                                 color: Colors.white
@@ -487,7 +490,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                               imagem2 = await pegarImagemCamera_socorrista();
                             },
                             style: ElevatedButton.styleFrom(
-                              minimumSize: Size(140,45),
+                              minimumSize: Size(230,45),
                               primary: Color(0xff56a2d9),
                             ),
                             label: const Text('Foto do socorrista',
@@ -498,6 +501,10 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                             ),
 
                           ),
+                          SizedBox(
+                            width: 5,
+                            height: 40,
+                          ),
 
                           ElevatedButton.icon(
                             icon: const Icon(Icons.camera_alt_outlined,
@@ -507,7 +514,7 @@ class _CadastroEmergenciaState extends State<CadastroEmergencia> {
                               imagem3 = await pegarImagemCamera_docSocorrista();
                             },
                             style: ElevatedButton.styleFrom(
-                              minimumSize: Size(140,45),
+                              minimumSize: Size(230,45),
                               primary: Color(0xff56a2d9),
                             ),
                             label: const Text('Foto do documento',
@@ -898,9 +905,19 @@ class _dadosDentistaState extends State<dadosDentista> {
         child: Column(
           children: [
             Container(
-              width: 150,
-              height: 150,
-              child: Image.network(_fotoDentista[widget.index]),
+              width: 140,
+              height: 185,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.blue,
+                    width: 3,
+                  ),
+                ),
+                child: Image.network(_fotoDentista[widget.index],
+                  //fit: BoxFit.fill,
+                ),
+              ),
             ),
             SizedBox(height: 10),
             Container(
@@ -935,7 +952,7 @@ class _dadosDentistaState extends State<dadosDentista> {
               margin: EdgeInsets.only(left: 15),
               alignment: Alignment.centerLeft,
               child: Text(
-                'Curriculo',
+                'Experiência profissional',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -1013,7 +1030,7 @@ class _dadosDentistaState extends State<dadosDentista> {
             ),
             const SizedBox(height: 10),
               Container(
-                width: 240,
+                width: 280,
                 decoration: BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(5),
